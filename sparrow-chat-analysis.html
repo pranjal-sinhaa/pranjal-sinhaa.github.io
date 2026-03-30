@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sparrow — Chat Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Joan&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0EDE8;
+    --surface: #FAFAF8;
+    --surface-2: #F4F1EC;
+    --ink: #1A1714;
+    --ink-muted: #6B6560;
+    --ink-faint: #B5B0AB;
+    --amber-core:  #E07A35;
+    --amber-light: #F5C49A;
+    --amber-pale:  #FDF3EA;
+    --teal-core:   #2D7D72;
+    --teal-light:  #A8D5D0;
+    --teal-pale:   #EAF5F3;
+    --green-core:  #2E7D52;
+    --green-pale:  #EAF5EE;
+    --purple-core: #6B4FA8;
+    --purple-pale: #F0EBFB;
+    --red-core:    #C0392B;
+    --margin: 48px;
+    --gutter: 32px;
+    --radius-card: 18px;
+    --radius-sm: 10px;
+    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Token highlight colours by count */
+    --tok2: #F5C49A;   /* 2 tokens — amber light */
+    --tok2-text: #7A3E0A;
+    --tok3: #C4973A;   /* 3 tokens — golden */
+    --tok3-text: #5C3800;
+    --tok4: #E07A35;   /* 4 tokens — amber core */
+    --tok4-text: #fff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Lato', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .bg-blob {
+    position: fixed; border-radius: 50%;
+    filter: blur(90px); pointer-events: none; z-index: 0;
+  }
+  .bg-blob-1 {
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(224,122,53,0.16) 0%, transparent 70%);
+    bottom: -100px; left: -100px;
+  }
+  .bg-blob-2 {
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(224,122,53,0.12) 0%, transparent 70%);
+    top: -40px; right: -60px;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto;
+    padding: 0 var(--margin) 60px;
+  }
+
+  /* ── Nav ── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 0 24px;
+    border-bottom: 1px solid rgba(26,23,20,0.08);
+    max-width: 900px; margin: 0 auto;
+    padding-left: var(--margin); padding-right: var(--margin);
+  }
+  .nav-user { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .nav-avatar-placeholder {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber-light), var(--teal-light));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Joan', serif; font-size: 16px; color: var(--ink);
+    border: 2px solid var(--amber-light); flex-shrink: 0;
+  }
+  .nav-name { font-weight: 400; font-size: 15px; color: var(--ink); }
+  .nav-brand { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .nav-brand-name {
+    font-family: 'Joan', serif; font-size: 26px; color: var(--ink);
+    letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;
+  }
+  .feather { display: inline-block; font-size: 22px; transform: rotate(-20deg); filter: drop-shadow(0 1px 2px rgba(224,122,53,0.3)); }
+  .nav-brand-tagline { font-size: 11px; font-weight: 300; letter-spacing: 0.08em; color: var(--ink-muted); text-transform: lowercase; }
+  .nav-actions { display: flex; align-items: center; gap: 24px; }
+  .nav-action-btn {
+    display: flex; align-items: center; gap: 7px;
+    font-family: 'Lato', sans-serif; font-size: 14px; font-weight: 400;
+    color: var(--ink-muted); background: none; border: none; cursor: pointer;
+    padding: 6px 10px; border-radius: var(--radius-sm);
+    transition: color var(--transition), background var(--transition);
+  }
+  .nav-action-btn:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
+  .nav-action-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 32px; margin-bottom: 10px;
+  }
+  .breadcrumb-back {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 400; color: var(--ink-faint);
+    cursor: pointer; border: none; background: none;
+    transition: color var(--transition);
+  }
+  .breadcrumb-back:hover { color: var(--amber-core); }
+  .breadcrumb-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .breadcrumb-sep { color: var(--ink-faint); font-size: 13px; }
+  .breadcrumb-mid { font-size: 13px; color: var(--ink-faint); font-weight: 400; cursor: pointer; transition: color var(--transition); }
+  .breadcrumb-mid:hover { color: var(--amber-core); }
+  .breadcrumb-current { font-size: 13px; color: var(--ink); font-weight: 700; }
+
+  /* ── Page header ── */
+  .page-header { margin-bottom: 36px; animation: headerIn 0.4s cubic-bezier(0.4,0,0.2,1) 0.02s both; }
+  .page-title {
+    font-family: 'Joan', serif; font-size: 32px; color: var(--ink);
+    letter-spacing: -0.4px; line-height: 1.25; max-width: 680px;
+  }
+
+  /* ── Prompt counter label ── */
+  .prompt-count-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--ink-faint);
+    margin-bottom: 16px; margin-top: 32px;
+  }
+  .prompt-count-label:first-of-type { margin-top: 0; }
+
+  /* ── Prompt block ── */
+  .prompt-block {
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(26,23,20,0.05), 0 4px 16px rgba(26,23,20,0.03);
+    animation: fadeUp 0.45s cubic-bezier(0.4,0,0.2,1) both;
+  }
+  .prompt-block:nth-child(2) { animation-delay: 0.05s; }
+  .prompt-block:nth-child(3) { animation-delay: 0.12s; }
+  .prompt-block:nth-child(4) { animation-delay: 0.19s; }
+
+  /* ── Tab row ── */
+  .tab-row {
+    display: flex;
+    border-bottom: 1px solid rgba(26,23,20,0.08);
+    padding: 0 24px;
+  }
+  .tab-btn {
+    font-family: 'Lato', sans-serif; font-size: 13px; font-weight: 400;
+    color: var(--ink-faint); background: none; border: none;
+    padding: 16px 0; margin-right: 28px; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color var(--transition), border-color var(--transition);
+  }
+  .tab-btn.active {
+    color: var(--ink); font-weight: 700;
+    border-bottom-color: var(--ink);
+  }
+  .tab-btn:hover:not(.active) { color: var(--ink-muted); }
+
+  /* ── Panel content ── */
+  .panel { display: none; padding: 24px 24px 28px; }
+  .panel.active { display: block; }
+
+  /* ── Prompt text ── */
+  .prompt-text {
+    font-size: 14px; line-height: 1.7; color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .prompt-text .read-more {
+    color: var(--amber-core); font-weight: 700; cursor: pointer;
+    font-size: 13px; margin-left: 4px;
+  }
+
+  /* Token highlight chips inline */
+  .tok {
+    display: inline-block;
+    padding: 1px 6px; border-radius: 4px;
+    font-size: 13px; font-weight: 700;
+    margin: 0 1px;
+  }
+  .tok-2 { background: var(--tok2); color: var(--tok2-text); }
+  .tok-3 { background: var(--tok3); color: var(--tok3-text); }
+  .tok-4 { background: var(--amber-core); color: white; }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: flex; align-items: center; gap: 24px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .stat-item { display: flex; align-items: baseline; gap: 6px; }
+  .stat-label { font-size: 12px; color: var(--ink-muted); }
+  .stat-value { font-family: 'Joan', serif; font-size: 18px; color: var(--ink); }
+  .stat-divider { width: 1px; height: 18px; background: rgba(26,23,20,0.10); }
+
+  /* Output undefined pill */
+  .output-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 3px 10px; border-radius: 999px;
+    cursor: default;
+  }
+  .output-undefined { background: rgba(192,57,43,0.12); color: var(--red-core); }
+  .output-defined   { background: rgba(45,125,114,0.12); color: var(--teal-core); }
+
+  /* ── Multi-token section ── */
+  .section-toggle {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px; cursor: pointer;
+  }
+  .section-toggle-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--ink-muted);
+  }
+
+  /* Token filter pills */
+  .tok-filter-row { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tok-filter {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 3px 12px; border-radius: 999px; cursor: pointer; border: none;
+    transition: all var(--transition);
+  }
+  .tok-filter-all { background: var(--ink); color: white; }
+  .tok-filter-2   { background: var(--tok2); color: var(--tok2-text); }
+  .tok-filter-3   { background: var(--tok3); color: var(--tok3-text); }
+  .tok-filter-4   { background: var(--amber-core); color: white; }
+  .tok-filter.inactive { opacity: 0.38; }
+
+  /* Multi-token list */
+  .tok-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .tok-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tok-row-num { font-size: 12px; color: var(--ink-faint); width: 20px; flex-shrink: 0; }
+  .tok-row-word { font-size: 13px; color: var(--ink); font-weight: 400; }
+  .tok-row-count {
+    font-size: 12px; color: var(--ink-muted);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .tok-row-count svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .tok-chips { display: flex; gap: 4px; }
+
+  /* ── Contextual questions ── */
+  .ctx-list { display: flex; flex-direction: column; gap: 6px; }
+  .ctx-item {
+    background: var(--amber-pale);
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; color: var(--ink);
+    border-left: 3px solid var(--amber-light);
+  }
+
+  /* ── Divider ── */
+  .panel-divider {
+    height: 1px; background: rgba(26,23,20,0.07);
+    margin: 20px 0;
+  }
+
+  /* ── Refined panel specifics ── */
+  .savings-row {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-top: 20px;
+  }
+  .saving-item {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--ink);
+  }
+  .saving-icon { font-size: 16px; flex-shrink: 0; }
+  .saving-label { color: var(--ink-muted); }
+  .saving-value { font-weight: 700; color: var(--ink); }
+
+  /* Ratio badge */
+  .ratio-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--teal-pale); border-radius: 8px;
+    padding: 8px 14px; margin-top: 4px;
+  }
+  .ratio-badge-label { font-size: 12px; color: var(--teal-core); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .ratio-badge-value { font-family: 'Joan', serif; font-size: 20px; color: var(--teal-core); }
+
+  /* Improvement delta */
+  .delta-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 2px 9px; border-radius: 999px;
+    background: var(--green-pale); color: var(--green-core);
+  }
+  .delta-chip svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+  /* Footer */
+  .page-footer {
+    text-align: center; padding: 24px 0 0;
+    font-size: 12px; color: var(--ink-faint); font-weight: 300; letter-spacing: 0.04em;
+  }
+
+  /* Toggle chevron */
+  .chevron {
+    width: 16px; height: 16px; stroke: var(--ink-muted); fill: none; stroke-width: 2;
+    transition: transform var(--transition);
+    flex-shrink: 0;
+  }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* Collapsible content */
+  .collapsible { overflow: hidden; transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1); }
+  .collapsible.closed { max-height: 0 !important; }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes headerIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+
+<!-- Nav (full-width container for the border, content centred) -->
+<div style="border-bottom: 1px solid rgba(26,23,20,0.08);">
+  <nav style="border-bottom:none; padding-top:28px; padding-bottom:24px;">
+    <div class="nav-user">
+      <div class="nav-avatar-placeholder">M</div>
+      <span class="nav-name">Mavis Berry</span>
+    </div>
+    <div class="nav-brand">
+      <div class="nav-brand-name">Sparrow <span class="feather">🪶</span></div>
+      <div class="nav-brand-tagline">pro at prompting</div>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-action-btn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <button class="nav-action-btn">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Sign out
+      </button>
+    </div>
+  </nav>
+</div>
+
+<div class="page">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <button class="breadcrumb-back" onclick="window.location.href='sparrow-dashboard.html'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Projects
+    </button>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-mid" onclick="window.location.href='sparrow-project-chats.html'" style="cursor:pointer;">Project Asafoetida</span>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">Smartwatch users research</span>
+  </div>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <h1 class="page-title">Smartwatch users research for psychologically responsible dashboard design</h1>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PROMPT 1
+  ════════════════════════════════════════ -->
+  <p class="prompt-count-label">Prompt 1 of 3</p>
+
+  <div class="prompt-block" id="block-1">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('block-1','orig')">Original Prompt</button>
+      <button class="tab-btn" onclick="switchTab('block-1','refined')">Refined Prompt</button>
+    </div>
+
+    <!-- ORIGINAL -->
+    <div class="panel active" data-panel="orig">
+      <div class="prompt-text">
+        The research aim is: To <span class="tok tok-2" data-tok="2">quant</span><span class="tok tok-2" data-tok="2">itat</span><span class="tok tok-2" data-tok="2">ively</span> understand how the smartwatch health metrics impact health anxiety levels in Bangalore, and establish a hierarchical framework to aid psychologically informed health...<span class="read-more">Read More</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Total Words</span>
+          <span class="stat-value">540</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Tokens Utilised</span>
+          <span class="stat-value">750</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Ratio</span>
+          <span class="stat-value">1.39</span>
+        </div>
+        <span class="output-tag output-undefined">Output undefined</span>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Multi-token words -->
+      <div class="section-toggle" onclick="toggleSection('mtok-1')">
+        <span class="section-toggle-label">Multi-Token Words</span>
+        <svg class="chevron open" id="chevron-mtok-1" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+
+      <div class="collapsible" id="mtok-1" style="max-height:300px;">
+        <div class="tok-filter-row">
+          <button class="tok-filter tok-filter-all" onclick="filterTok('block-1', 'all', this)">All</button>
+          <button class="tok-filter tok-filter-2" onclick="filterTok('block-1', '2', this)">2 tokens</button>
+          <button class="tok-filter tok-filter-3" onclick="filterTok('block-1', '3', this)">3 tokens</button>
+          <button class="tok-filter tok-filter-4" onclick="filterTok('block-1', '4', this)">4 tokens</button>
+        </div>
+        <div class="tok-list">
+          <div class="tok-row" data-tok-count="3">
+            <span class="tok-row-num">1.</span>
+            <span class="tok-row-word">Quantitatively</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 3 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-3">quant</span>
+              <span class="tok tok-3">itat</span>
+              <span class="tok tok-3">ively</span>
+            </div>
+          </div>
+          <div class="tok-row" data-tok-count="3">
+            <span class="tok-row-num">2.</span>
+            <span class="tok-row-word">Understand</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 3 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-3">unde</span>
+              <span class="tok tok-3">rsta</span>
+              <span class="tok tok-3">nd</span>
+            </div>
+          </div>
+          <div class="tok-row" data-tok-count="4">
+            <span class="tok-row-num">3.</span>
+            <span class="tok-row-word">Smartwatch</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 4 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-4">sma</span>
+              <span class="tok tok-4">rtw</span>
+              <span class="tok tok-4">at</span>
+              <span class="tok tok-4">ch</span>
+            </div>
+          </div>
+          <div class="tok-row" data-tok-count="2">
+            <span class="tok-row-num">4.</span>
+            <span class="tok-row-word">Hierarchical</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 2 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-2">hierarch</span>
+              <span class="tok tok-2">ical</span>
+            </div>
+          </div>
+          <div class="tok-row" data-tok-count="2">
+            <span class="tok-row-num">5.</span>
+            <span class="tok-row-word">Psychologically</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 2 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-2">psycholog</span>
+              <span class="tok tok-2">ically</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Contextual questions -->
+      <div class="section-toggle" onclick="toggleSection('ctx-1')">
+        <span class="section-toggle-label">Contextual questions used in prompt</span>
+        <svg class="chevron open" id="chevron-ctx-1" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+      <div class="collapsible" id="ctx-1" style="max-height:200px;">
+        <div class="ctx-list">
+          <div class="ctx-item">What scales can be used to quantitatively measure the impact of this research question?</div>
+          <div class="ctx-item">Which user groups are you targeting?</div>
+          <div class="ctx-item">When is the deadline of this project?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFINED -->
+    <div class="panel" data-panel="refined">
+      <div class="prompt-text">
+        The research aim is: To quantitatively understand how smartwatch health metrics impact health anxiety levels among <strong>middle-aged urban professionals</strong> in Bangalore, and establish a hierarchical (for anxiety induced) framework to aid psychologically informed health...<span class="read-more">Read More</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Total Words</span>
+          <span class="stat-value">435</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Tokens Utilised</span>
+          <span class="stat-value">500</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">New Ratio</span>
+          <span class="stat-value">1.15</span>
+        </div>
+        <div class="delta-chip">
+          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+          17% more efficient
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="savings-row">
+        <div class="saving-item">
+          <span class="saving-icon">🌱</span>
+          <span class="saving-label">CO₂ saved:</span>
+          <span class="saving-value">Equivalent to charging your smartphone from 0 to 100%</span>
+        </div>
+        <div class="saving-item">
+          <span class="saving-icon">💰</span>
+          <span class="saving-label">API cost:</span>
+          <span class="saving-value">₹0.04 saved per prompt</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PROMPT 2
+  ════════════════════════════════════════ -->
+  <p class="prompt-count-label">Prompt 2 of 3</p>
+
+  <div class="prompt-block" id="block-2">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('block-2','orig')">Original Prompt</button>
+      <button class="tab-btn" onclick="switchTab('block-2','refined')">Refined Prompt</button>
+    </div>
+
+    <!-- ORIGINAL -->
+    <div class="panel active" data-panel="orig">
+      <div class="prompt-text">
+        Could you please help me comprehensively understand the methodology for conducting <span class="tok tok-4" data-tok="4">qual</span><span class="tok tok-4" data-tok="4">itat</span><span class="tok tok-4" data-tok="4">ive</span><span class="tok tok-4" data-tok="4">ly</span> rigorous user interviews with smartwatch users who experience health anxiety symptoms...<span class="read-more">Read More</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Total Words</span>
+          <span class="stat-value">312</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Tokens Utilised</span>
+          <span class="stat-value">480</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Ratio</span>
+          <span class="stat-value">1.54</span>
+        </div>
+        <span class="output-tag output-defined">Output defined</span>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="section-toggle" onclick="toggleSection('mtok-2')">
+        <span class="section-toggle-label">Multi-Token Words</span>
+        <svg class="chevron open" id="chevron-mtok-2" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+      <div class="collapsible" id="mtok-2" style="max-height:300px;">
+        <div class="tok-filter-row">
+          <button class="tok-filter tok-filter-all" onclick="filterTok('block-2', 'all', this)">All</button>
+          <button class="tok-filter tok-filter-2" onclick="filterTok('block-2', '2', this)">2 tokens</button>
+          <button class="tok-filter tok-filter-3" onclick="filterTok('block-2', '3', this)">3 tokens</button>
+          <button class="tok-filter tok-filter-4" onclick="filterTok('block-2', '4', this)">4 tokens</button>
+        </div>
+        <div class="tok-list">
+          <div class="tok-row" data-tok-count="4">
+            <span class="tok-row-num">1.</span>
+            <span class="tok-row-word">Qualitatively</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 4 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-4">qual</span>
+              <span class="tok tok-4">itat</span>
+              <span class="tok tok-4">ive</span>
+              <span class="tok tok-4">ly</span>
+            </div>
+          </div>
+          <div class="tok-row" data-tok-count="3">
+            <span class="tok-row-num">2.</span>
+            <span class="tok-row-word">Comprehensively</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 3 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-3">comp</span>
+              <span class="tok tok-3">rehen</span>
+              <span class="tok tok-3">sively</span>
+            </div>
+          </div>
+          <div class="tok-row" data-tok-count="2">
+            <span class="tok-row-num">3.</span>
+            <span class="tok-row-word">Methodology</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 2 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-2">method</span>
+              <span class="tok tok-2">ology</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="section-toggle" onclick="toggleSection('ctx-2')">
+        <span class="section-toggle-label">Contextual questions used in prompt</span>
+        <svg class="chevron open" id="chevron-ctx-2" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+      <div class="collapsible" id="ctx-2" style="max-height:200px;">
+        <div class="ctx-list">
+          <div class="ctx-item">What interview format are you planning — in-person, remote, or diary-based?</div>
+          <div class="ctx-item">How many participants do you intend to recruit?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFINED -->
+    <div class="panel" data-panel="refined">
+      <div class="prompt-text">
+        Explain user interview methodology for health-anxious smartwatch users. Focus on semi-structured format, 12 participants, Bangalore context. Output: bullet-point protocol...<span class="read-more">Read More</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Total Words</span>
+          <span class="stat-value">218</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Tokens Utilised</span>
+          <span class="stat-value">290</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">New Ratio</span>
+          <span class="stat-value">1.33</span>
+        </div>
+        <div class="delta-chip">
+          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+          14% more efficient
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="savings-row">
+        <div class="saving-item">
+          <span class="saving-icon">🌱</span>
+          <span class="saving-label">CO₂ saved:</span>
+          <span class="saving-value">Equivalent to sending 8 emails</span>
+        </div>
+        <div class="saving-item">
+          <span class="saving-icon">💰</span>
+          <span class="saving-label">API cost:</span>
+          <span class="saving-value">₹0.03 saved per prompt</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PROMPT 3
+  ════════════════════════════════════════ -->
+  <p class="prompt-count-label">Prompt 3 of 3</p>
+
+  <div class="prompt-block" id="block-3">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('block-3','orig')">Original Prompt</button>
+      <button class="tab-btn" onclick="switchTab('block-3','refined')">Refined Prompt</button>
+    </div>
+
+    <!-- ORIGINAL -->
+    <div class="panel active" data-panel="orig">
+      <div class="prompt-text">
+        I was wondering if you could assist me in comprehensively <span class="tok tok-3" data-tok="3">anal</span><span class="tok tok-3" data-tok="3">ys</span><span class="tok tok-3" data-tok="3">ing</span> the thematic patterns emerging from the <span class="tok tok-2" data-tok="2">qualit</span><span class="tok tok-2" data-tok="2">ative</span> data gathered through the smartwatch user interviews...<span class="read-more">Read More</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Total Words</span>
+          <span class="stat-value">285</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Tokens Utilised</span>
+          <span class="stat-value">410</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Ratio</span>
+          <span class="stat-value">1.44</span>
+        </div>
+        <span class="output-tag output-defined">Output defined</span>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="section-toggle" onclick="toggleSection('mtok-3')">
+        <span class="section-toggle-label">Multi-Token Words</span>
+        <svg class="chevron open" id="chevron-mtok-3" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+      <div class="collapsible" id="mtok-3" style="max-height:300px;">
+        <div class="tok-filter-row">
+          <button class="tok-filter tok-filter-all" onclick="filterTok('block-3', 'all', this)">All</button>
+          <button class="tok-filter tok-filter-2" onclick="filterTok('block-3', '2', this)">2 tokens</button>
+          <button class="tok-filter tok-filter-3" onclick="filterTok('block-3', '3', this)">3 tokens</button>
+          <button class="tok-filter tok-filter-4" onclick="filterTok('block-3', '4', this)">4 tokens</button>
+        </div>
+        <div class="tok-list">
+          <div class="tok-row" data-tok-count="3">
+            <span class="tok-row-num">1.</span>
+            <span class="tok-row-word">Analysing</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 3 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-3">anal</span>
+              <span class="tok tok-3">ys</span>
+              <span class="tok tok-3">ing</span>
+            </div>
+          </div>
+          <div class="tok-row" data-tok-count="2">
+            <span class="tok-row-num">2.</span>
+            <span class="tok-row-word">Qualitative</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 2 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-2">qualit</span>
+              <span class="tok tok-2">ative</span>
+            </div>
+          </div>
+          <div class="tok-row" data-tok-count="2">
+            <span class="tok-row-num">3.</span>
+            <span class="tok-row-word">Thematic</span>
+            <span class="tok-row-count"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> 2 tokens</span>
+            <div class="tok-chips">
+              <span class="tok tok-2">them</span>
+              <span class="tok tok-2">atic</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="section-toggle" onclick="toggleSection('ctx-3')">
+        <span class="section-toggle-label">Contextual questions used in prompt</span>
+        <svg class="chevron open" id="chevron-ctx-3" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+      <div class="collapsible" id="ctx-3" style="max-height:200px;">
+        <div class="ctx-list">
+          <div class="ctx-item">What thematic analysis framework are you applying — Braun &amp; Clarke or another?</div>
+          <div class="ctx-item">How many interview transcripts are you working with?</div>
+          <div class="ctx-item">What output format do you need — codebook, summary table, or narrative?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFINED -->
+    <div class="panel" data-panel="refined">
+      <div class="prompt-text">
+        Analyse thematic patterns in 12 smartwatch user interview transcripts using Braun &amp; Clarke. Focus on health anxiety triggers. Output: codebook table with theme, sub-theme, and example quote columns...<span class="read-more">Read More</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Total Words</span>
+          <span class="stat-value">190</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Tokens Utilised</span>
+          <span class="stat-value">248</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">New Ratio</span>
+          <span class="stat-value">1.31</span>
+        </div>
+        <div class="delta-chip">
+          <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+          9% more efficient
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <div class="savings-row">
+        <div class="saving-item">
+          <span class="saving-icon">🌱</span>
+          <span class="saving-label">CO₂ saved:</span>
+          <span class="saving-value">Equivalent to 4 minutes of streaming video</span>
+        </div>
+        <div class="saving-item">
+          <span class="saving-icon">💰</span>
+          <span class="saving-label">API cost:</span>
+          <span class="saving-value">₹0.02 saved per prompt</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">Sparrow · pro at prompting</div>
+
+</div>
+
+<script>
+  /* ── Tab switching ── */
+  function switchTab(blockId, panel) {
+    const block = document.getElementById(blockId);
+    block.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', (i === 0 && panel === 'orig') || (i === 1 && panel === 'refined'));
+    });
+    block.querySelectorAll('.panel').forEach(p => {
+      p.classList.toggle('active', p.dataset.panel === panel);
+    });
+  }
+
+  /* ── Collapsible toggle ── */
+  function toggleSection(id) {
+    const el = document.getElementById(id);
+    const chevron = document.getElementById('chevron-' + id);
+    const isOpen = !el.classList.contains('closed');
+    if (isOpen) {
+      el.classList.add('closed');
+      chevron.classList.remove('open');
+    } else {
+      el.classList.remove('closed');
+      chevron.classList.add('open');
+    }
+  }
+
+  /* ── Token filter ── */
+  function filterTok(blockId, level, clickedBtn) {
+    const block = document.getElementById(blockId);
+    // Update button states
+    block.querySelectorAll('.tok-filter').forEach(b => b.classList.remove('inactive'));
+    if (level !== 'all') {
+      block.querySelectorAll('.tok-filter').forEach(b => {
+        if (!b.classList.contains('tok-filter-' + level) && !b.classList.contains('tok-filter-all')) {
+          b.classList.add('inactive');
+        }
+      });
+    }
+    // Show/hide rows
+    block.querySelectorAll('.tok-row').forEach(row => {
+      if (level === 'all') {
+        row.style.display = 'flex';
+      } else {
+        row.style.display = row.dataset.tokCount === level ? 'flex' : 'none';
+      }
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sparrow — Pro at Prompting</title>
+<link href="https://fonts.googleapis.com/css2?family=Joan&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0EDE8;
+    --surface: #FAFAF8;
+    --ink: #1A1714;
+    --ink-muted: #6B6560;
+    --ink-faint: #B5B0AB;
+    --amber-core:  #E07A35;
+    --amber-light: #F5C49A;
+    --teal-light:  #A8D5D0;
+    --margin: 48px;
+    --gutter: 32px;
+    --radius-card: 18px;
+    --radius-sm: 10px;
+    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Lato', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .bg-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-blob-1 {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(224,122,53,0.18) 0%, transparent 70%);
+    bottom: -80px; left: -80px;
+  }
+  .bg-blob-2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(45,125,114,0.10) 0%, transparent 70%);
+    top: 60px; right: -60px;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--margin);
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 0 24px;
+    border-bottom: 1px solid rgba(26,23,20,0.08);
+  }
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .nav-avatar-placeholder {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber-light), var(--teal-light));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Joan', serif;
+    font-size: 16px;
+    color: var(--ink);
+    border: 2px solid var(--amber-light);
+    flex-shrink: 0;
+  }
+  .nav-name {
+    font-weight: 400;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .nav-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .nav-brand-name {
+    font-family: 'Joan', serif;
+    font-size: 26px;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feather {
+    display: inline-block;
+    font-size: 22px;
+    transform: rotate(-20deg);
+    filter: drop-shadow(0 1px 2px rgba(224,122,53,0.3));
+  }
+  .nav-brand-tagline {
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    text-transform: lowercase;
+  }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .nav-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition), background var(--transition);
+  }
+  .nav-action-btn:hover {
+    color: var(--ink);
+    background: rgba(26,23,20,0.05);
+  }
+  .nav-action-btn svg {
+    width: 17px; height: 17px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: 40px;
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-family: 'Joan', serif;
+    font-size: 28px;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  .section-count {
+    font-size: 13px;
+    color: var(--ink-muted);
+    font-weight: 300;
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--gutter);
+    padding-bottom: var(--margin);
+  }
+
+  .card-new {
+    border-radius: var(--radius-card);
+    background: linear-gradient(135deg, #F5E8D8 0%, #EDD9C6 100%);
+    border: 2px dashed rgba(224,122,53,0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    min-height: 220px;
+    transition: border-color var(--transition), background var(--transition),
+                transform var(--transition), box-shadow var(--transition);
+  }
+  .card-new:hover {
+    border-color: var(--amber-core);
+    background: linear-gradient(135deg, #F8EDDF 0%, #F0E0CC 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(224,122,53,0.15);
+  }
+  .card-new-icon {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--amber-core);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 26px;
+    line-height: 1;
+    box-shadow: 0 4px 14px rgba(224,122,53,0.35);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .card-new:hover .card-new-icon {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(224,122,53,0.45);
+  }
+  .card-new-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--amber-core);
+    letter-spacing: 0.02em;
+  }
+
+  .card-project {
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--surface);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(26,23,20,0.06), 0 4px 16px rgba(26,23,20,0.04);
+    transition: transform var(--transition), box-shadow var(--transition);
+    display: flex;
+    flex-direction: column;
+  }
+  .card-project:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(26,23,20,0.13);
+  }
+  .card-project:hover .card-img-color {
+    filter: brightness(1.07);
+  }
+  .card-img-wrap {
+    position: relative;
+    overflow: hidden;
+    height: 148px;
+    flex-shrink: 0;
+  }
+  .card-img-color {
+    width: 100%; height: 100%;
+    transition: filter 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .card-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 20%, rgba(15,12,10,0.5) 100%);
+  }
+  .card-body {
+    padding: 14px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface);
+  }
+  .card-title {
+    font-family: 'Joan', serif;
+    font-size: 16px;
+    color: var(--ink);
+    letter-spacing: -0.1px;
+  }
+  .card-stats {
+    display: flex;
+    gap: 16px;
+  }
+  .card-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .card-stat svg {
+    width: 12px; height: 12px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    flex-shrink: 0;
+  }
+  .card-date {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-weight: 300;
+  }
+
+  .page-footer {
+    text-align: center;
+    padding: 0 0 32px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card-new     { animation: cardIn 0.5s cubic-bezier(0.4,0,0.2,1) 0.05s both; }
+  .card-project { animation: cardIn 0.5s cubic-bezier(0.4,0,0.2,1) both; }
+  .card-project:nth-child(2) { animation-delay: 0.10s; }
+  .card-project:nth-child(3) { animation-delay: 0.15s; }
+  .card-project:nth-child(4) { animation-delay: 0.20s; }
+  .card-project:nth-child(5) { animation-delay: 0.25s; }
+  .card-project:nth-child(6) { animation-delay: 0.30s; }
+  .card-project:nth-child(7) { animation-delay: 0.35s; }
+  .card-project:nth-child(8) { animation-delay: 0.40s; }
+</style>
+</head>
+<body>
+
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+
+<div class="page">
+
+  <nav>
+    <div class="nav-user">
+      <div class="nav-avatar-placeholder">M</div>
+      <span class="nav-name">Mavis Berry</span>
+    </div>
+
+    <div class="nav-brand">
+      <div class="nav-brand-name">Sparrow <span class="feather">🪶</span></div>
+      <div class="nav-brand-tagline">pro at prompting</div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="nav-action-btn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <button class="nav-action-btn">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Sign out
+      </button>
+    </div>
+  </nav>
+
+  <div class="section-header">
+    <h2 class="section-title">Projects</h2>
+    <span class="section-count">7 projects</span>
+  </div>
+
+  <div class="projects-grid">
+
+    <div class="card-new">
+      <div class="card-new-icon">+</div>
+      <span class="card-new-label">New Project</span>
+    </div>
+
+    <div class="card-project" onclick="window.location.href='sparrow-project-chats.html'">
+      <div class="card-img-wrap">
+        <div class="card-img-color" style="background: linear-gradient(135deg, #D4A853 0%, #A07830 100%);"></div>
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Project A</div>
+        <div class="card-stats">
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            12 chats
+          </span>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            148 prompts
+          </span>
+        </div>
+        <span class="card-date">3 days ago</span>
+      </div>
+    </div>
+
+    <div class="card-project" onclick="window.location.href='sparrow-project-chats.html'">
+      <div class="card-img-wrap">
+        <div class="card-img-color" style="background: linear-gradient(135deg, #C0392B 0%, #8B1A10 100%);"></div>
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Project B</div>
+        <div class="card-stats">
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            8 chats
+          </span>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            94 prompts
+          </span>
+        </div>
+        <span class="card-date">Yesterday</span>
+      </div>
+    </div>
+
+    <div class="card-project" onclick="window.location.href='sparrow-project-chats.html'">
+      <div class="card-img-wrap">
+        <div class="card-img-color" style="background: linear-gradient(135deg, #2C3E50 0%, #1A252F 100%);"></div>
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Project F</div>
+        <div class="card-stats">
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            5 chats
+          </span>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            67 prompts
+          </span>
+        </div>
+        <span class="card-date">Today</span>
+      </div>
+    </div>
+
+    <div class="card-project" onclick="window.location.href='sparrow-project-chats.html'">
+      <div class="card-img-wrap">
+        <div class="card-img-color" style="background: linear-gradient(135deg, #6C5B7B 0%, #44395A 100%);"></div>
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Lanyard</div>
+        <div class="card-stats">
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            3 chats
+          </span>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            29 prompts
+          </span>
+        </div>
+        <span class="card-date">5 days ago</span>
+      </div>
+    </div>
+
+    <div class="card-project" onclick="window.location.href='sparrow-project-chats.html'">
+      <div class="card-img-wrap">
+        <div class="card-img-color" style="background: linear-gradient(135deg, #27AE60 0%, #1A7A42 100%);"></div>
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Fruits Research</div>
+        <div class="card-stats">
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            6 chats
+          </span>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            72 prompts
+          </span>
+        </div>
+        <span class="card-date">2 days ago</span>
+      </div>
+    </div>
+
+    <div class="card-project" onclick="window.location.href='sparrow-project-chats.html'">
+      <div class="card-img-wrap">
+        <div class="card-img-color" style="background: linear-gradient(135deg, #BDC3C7 0%, #8A9BAD 100%);"></div>
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Ergonomics</div>
+        <div class="card-stats">
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            4 chats
+          </span>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            41 prompts
+          </span>
+        </div>
+        <span class="card-date">1 week ago</span>
+      </div>
+    </div>
+
+    <div class="card-project" onclick="window.location.href='sparrow-project-chats.html'">
+      <div class="card-img-wrap">
+        <div class="card-img-color" style="background: linear-gradient(135deg, #C8A882 0%, #A07B55 100%);"></div>
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Project E</div>
+        <div class="card-stats">
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            2 chats
+          </span>
+          <span class="card-stat">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            18 prompts
+          </span>
+        </div>
+        <span class="card-date">2 weeks ago</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer">Sparrow · pro at prompting</div>
+
+</div>
+</body>
+</html>

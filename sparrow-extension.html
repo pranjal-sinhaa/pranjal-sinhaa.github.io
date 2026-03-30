@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sparrow Extension</title>
+<link href="https://fonts.googleapis.com/css2?family=Joan&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-browser: #DEDAD4;
+  --bg-page: #F5F4F0;
+  --ext-panel-bg: #FEF0FD;
+  --ink: #1A1714;
+  --ink-muted: #6B6560;
+  --ink-faint: #B5B0AB;
+  --amber: #E07A35;
+  --amber-light: #F5C49A;
+  --teal: #2D7D72;
+  --green: #27AE60;
+  --green-pale: #EAF5EE;
+  --ext-grad: linear-gradient(155deg, #D8B4F8 0%, #C89FF0 40%, #BC8EE8 100%);
+  --ext-border: rgba(140,80,200,0.28);
+  --ext-surface: rgba(255,255,255,0.55);
+  --T: 0.28s cubic-bezier(0.4,0,0.2,1);
+  --ext-w: 220px;
+  --ext-h: 420px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-browser);
+  font-family: 'Lato', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 14px;
+}
+
+/* ── State tabs ── */
+.state-tabs { display: flex; gap: 8px; flex-wrap: wrap; align-self: flex-start; }
+.state-tab {
+  padding: 6px 14px; border-radius: 999px; font-family: 'Lato', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: .04em; cursor: pointer;
+  border: 1.5px solid rgba(0,0,0,.10); background: white; color: var(--ink-muted);
+  transition: all var(--T);
+}
+.state-tab.active { background: var(--ink); color: white; border-color: var(--ink); }
+.state-tab:hover:not(.active) { border-color: var(--amber); color: var(--amber); }
+
+/* ── Views ── */
+.view { display: none; width: 100%; max-width: 1100px; flex-direction: column; }
+.view.active { display: flex; }
+
+/* ── Browser chrome ── */
+.browser { width: 100%; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.18); }
+.toolbar { background: #2B2B2B; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+.tlights { display: flex; gap: 6px; }
+.tl { width: 12px; height: 12px; border-radius: 50%; }
+.tlr { background: #FF5F57; } .tly { background: #FEBC2E; } .tlg { background: #28C840; }
+.tabs { display: flex; gap: 2px; flex: 1; }
+.tab { background: #3C3C3C; border-radius: 6px 6px 0 0; padding: 5px 12px; font-size: 11px; color: #CCC; display: flex; align-items: center; gap: 5px; white-space: nowrap; font-family: 'Lato', sans-serif; }
+.tab.active { background: #F5F4F0; color: #222; }
+.fav { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+.fav-claude { background: var(--amber); display: flex; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 700; }
+.urlbar { background: #3C3C3C; border-radius: 6px; padding: 4px 12px; font-size: 12px; color: #AAA; min-width: 160px; text-align: center; font-family: 'Lato', sans-serif; }
+
+/* ── Content wrapper ── */
+.content { background: var(--bg-page); display: flex; min-height: 520px; }
+
+/* ── Chrome left sidebar ── */
+.sidebar { width: 46px; background: var(--bg-page); border-right: 1px solid rgba(0,0,0,.08); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 16px; flex-shrink: 0; }
+.sbi { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background var(--T); }
+.sbi:hover { background: rgba(0,0,0,.07); }
+.sbi svg { width: 16px; height: 16px; stroke: #666; fill: none; stroke-width: 1.8; }
+.sba { width: 26px; height: 26px; border-radius: 50%; background: #444; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; margin-top: auto; font-family: 'Lato', sans-serif; }
+
+/* ── Page area ── */
+.page { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 36px; gap: 28px; position: relative; }
+
+/* ── Greeting ── */
+.greeting { display: flex; align-items: center; gap: 14px; font-family: 'Joan', serif; font-size: 36px; color: var(--ink); letter-spacing: -.5px; }
+.asterisk { width: 42px; height: 42px; flex-shrink: 0; }
+
+/* ── Prompt box ── */
+.pbox { width: 100%; max-width: 620px; background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,.10); box-shadow: 0 2px 12px rgba(0,0,0,.06); overflow: visible; position: relative; }
+.pinput { padding: 18px 20px 10px; font-size: 15px; color: var(--ink); line-height: 1.7; min-height: 58px; font-family: 'Lato', sans-serif; }
+.pfooter { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px 12px; }
+.pplus { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid #CCC; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #888; font-size: 18px; line-height: 1; }
+.pright { display: flex; align-items: center; gap: 10px; }
+.mchip { font-size: 12px; color: var(--ink-muted); display: flex; align-items: center; gap: 4px; cursor: pointer; font-family: 'Lato', sans-serif; }
+.mchip svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+.sbtn { width: 34px; height: 34px; border-radius: 50%; background: var(--amber); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; box-shadow: 0 2px 8px rgba(224,122,53,.4); transition: transform var(--T); }
+.sbtn:hover { transform: scale(1.08); }
+.sbtn svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2.5; }
+
+/* ── Token word colours ── */
+/* green = 2 tokens, amber/orange = 3+ tokens */
+.tw { display: inline; cursor: pointer; border-radius: 2px; padding: 0 1px; position: relative; }
+.tw2 { text-decoration: underline wavy #27AE60 2px; text-underline-offset: 4px; color: #1A5C35; }
+.tw3 { text-decoration: underline wavy #E07A35 2px; text-underline-offset: 4px; color: #7A3800; }
+.tw4 { text-decoration: underline wavy #C0392B 2px; text-underline-offset: 4px; color: #6B1A10; }
+.tw5 { text-decoration: underline wavy #C0392B 2px; text-underline-offset: 4px; color: #6B1A10; }
+
+/* ── Inline tooltip on hover (token check view) ── */
+.tw .tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 6px 22px rgba(0,0,0,.14);
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+  font-family: 'Lato', sans-serif;
+  min-width: 180px;
+}
+.tw:hover .tip { display: block; }
+.tip::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: white;
+}
+.tip-orig { font-size: 11px; color: var(--ink-muted); margin-bottom: 5px; }
+.tip-chips { display: flex; gap: 3px; margin-bottom: 8px; }
+.tip-chip { background: #F0EDE8; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 700; color: var(--ink-muted); }
+.tip-count { font-size: 11px; color: var(--ink-muted); margin-bottom: 8px; }
+.tip-divider { height: 1px; background: rgba(0,0,0,.07); margin-bottom: 8px; }
+.tip-sub-label { font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
+.tip-sub-word { font-size: 13px; font-weight: 700; color: var(--teal); margin-bottom: 2px; }
+.tip-sub-count { font-size: 11px; color: var(--teal); }
+
+/* ── Extension panel ── */
+.ext-wrap {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  /* Always reserves space for the pull tab */
+}
+
+/* Pull tab — lives OUTSIDE .ext, always visible */
+.ext-tab {
+  width: 24px;
+  height: 56px;
+  background: linear-gradient(155deg, #C89FF0, #B070D8);
+  border: 1px solid var(--ext-border);
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: -3px 2px 10px rgba(120,60,180,.20);
+  z-index: 30;
+  flex-shrink: 0;
+  transition: background var(--T);
+}
+.ext-tab:hover { background: linear-gradient(155deg, #D0AAFF, #BC82EC); }
+.ext-tab svg {
+  width: 13px; height: 13px;
+  stroke: white; fill: none; stroke-width: 2.5;
+  transition: transform var(--T);
+}
+/* Arrow points left (collapse) when panel is open */
+/* Arrow points right (expand) when panel is collapsed — toggled by JS class on wrap */
+.ext-wrap.collapsed .ext-tab svg { transform: rotate(180deg); }
+
+.ext {
+  width: var(--ext-w);
+  height: var(--ext-h);
+  background: var(--ext-panel-bg);
+  border-left: 1px solid var(--ext-border);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: width var(--T), opacity var(--T);
+  overflow: hidden;
+  flex-shrink: 0;
+  align-self: center;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 4px 0 20px rgba(120,60,180,.10);
+}
+.ext-wrap.collapsed .ext {
+  width: 0;
+  opacity: 0;
+  border-left: none;
+  box-shadow: none;
+}
+
+/* Panel header — title only, no buttons */
+.ext-hdr {
+  display: flex;
+  align-items: center;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid rgba(140,80,200,.18);
+  flex-shrink: 0;
+}
+.ext-title {
+  font-family: 'Joan', serif;
+  font-size: 14px; color: var(--ink);
+  letter-spacing: -.1px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Panel body — fixed height with scrollbar */
+.ext-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 13px;
+  padding-bottom: 54px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140,80,200,.35) transparent;
+}
+.ext-body::-webkit-scrollbar { width: 4px; }
+.ext-body::-webkit-scrollbar-track { background: transparent; }
+.ext-body::-webkit-scrollbar-thumb { background: rgba(140,80,200,.35); border-radius: 999px; }
+
+/* Permanent footer */
+.ext-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 9px 14px;
+  border-top: 1px solid rgba(140,80,200,.16);
+  background: linear-gradient(155deg, #C89FF0, #B070D8);
+  flex-shrink: 0;
+}
+.dash-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; background: none; border: none;
+  font-family: 'Lato', sans-serif; font-size: 11px; font-weight: 700;
+  color: white; cursor: pointer; padding: 3px 0;
+  transition: opacity var(--T); letter-spacing: .01em;
+}
+.dash-btn:hover { opacity: .75; }
+.dash-btn svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ── Option buttons — saturated ── */
+.opt-list { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+.opt-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 13px 14px;
+  font-family: 'Lato', sans-serif;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  display: flex; align-items: center; gap: 9px;
+  transition: filter var(--T), transform var(--T), box-shadow var(--T);
+  color: white;
+  letter-spacing: .01em;
+}
+.opt-btn:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.opt-btn svg { width: 15px; height: 15px; stroke: white; fill: none; stroke-width: 2.2; flex-shrink: 0; }
+.btn-context { background: linear-gradient(135deg, #2D7D72, #22635A); box-shadow: 0 2px 10px rgba(45,125,114,.45); }
+.btn-token   { background: linear-gradient(135deg, #E07A35, #C45E1A); box-shadow: 0 2px 10px rgba(224,122,53,.45); }
+
+/* ── Back button ── */
+.back-btn { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; font-size: 11px; color: var(--ink-muted); margin-bottom: 12px; padding: 0; transition: color var(--T); font-family: 'Lato', sans-serif; }
+.back-btn:hover { color: var(--amber); }
+.back-btn svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ── Typography in panel ── */
+.sec-title { font-family: 'Joan', serif; font-size: 13px; color: var(--ink); margin-bottom: 3px; }
+.sec-sub { font-size: 11px; color: var(--ink-muted); margin-bottom: 11px; line-height: 1.5; font-family: 'Lato', sans-serif; }
+.sec-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 7px; font-family: 'Lato', sans-serif; }
+.hint { font-size: 11px; color: var(--ink-muted); line-height: 1.5; margin-bottom: 11px; font-family: 'Lato', sans-serif; }
+.divider { height: 1px; background: rgba(140,80,200,.18); margin: 11px 0; }
+
+/* ── Context questions ── */
+.ctx-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.ctx-q {
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(140,80,200,.22);
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 12px; color: var(--ink);
+  line-height: 1.45;
+  cursor: pointer;
+  transition: background var(--T), border-color var(--T), color var(--T);
+  font-family: 'Lato', sans-serif;
+  user-select: none;
+}
+.ctx-q:hover { background: rgba(255,255,255,0.98); }
+.ctx-q.selected {
+  background: var(--green-pale);
+  border-color: var(--green);
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* ── Output options ── */
+.out-opts { display: flex; flex-direction: column; gap: 6px; }
+.out-opt { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink); cursor: pointer; font-family: 'Lato', sans-serif; }
+.rdot { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid rgba(140,80,200,.45); background: transparent; flex-shrink: 0; transition: all var(--T); display: flex; align-items: center; justify-content: center; }
+.rdot.on { border-color: var(--amber); background: var(--amber); }
+.rdot.on::after { content: ''; width: 4px; height: 4px; border-radius: 50%; background: white; }
+
+/* ── Stats ── */
+.stats-row { display: flex; gap: 16px; margin-bottom: 10px; }
+.stat-item { display: flex; flex-direction: column; gap: 1px; }
+.stat-lbl { font-size: 10px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 700; font-family: 'Lato', sans-serif; }
+.stat-val { font-family: 'Joan', serif; font-size: 16px; color: var(--ink); }
+
+/* ── Token word list in panel ── */
+.tok-list { display: flex; flex-direction: column; gap: 7px; }
+.tok-row { display: flex; justify-content: space-between; align-items: center; }
+.tok-word-name { font-size: 12px; color: var(--ink); font-family: 'Lato', sans-serif; }
+.tok-count { font-family: 'Joan', serif; font-size: 13px; }
+.tc-red { color: #C0392B; } .tc-amb { color: var(--amber); } .tc-grn { color: var(--green); }
+
+/* ── Legend ── */
+.leg-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+.leg-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--ink-muted); font-family: 'Lato', sans-serif; }
+.leg-swatch { width: 28px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="state-tabs">
+  <button class="state-tab active" onclick="sv('default')">Default</button>
+  <button class="state-tab" onclick="sv('context')">Improve Context</button>
+  <button class="state-tab" onclick="sv('token')">Token Check</button>
+</div>
+
+<!-- Shared SVG symbols -->
+<svg style="display:none">
+  <symbol id="asterisk" viewBox="0 0 100 100">
+    <g transform="translate(50,50)">
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(0)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(30)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(60)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(90)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(120)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(150)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(180)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(210)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(240)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(270)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(300)"/>
+      <rect x="-7" y="-46" width="14" height="36" rx="7" fill="#C96A3A" transform="rotate(330)"/>
+    </g>
+  </symbol>
+  <symbol id="ast-sm" viewBox="0 0 100 100">
+    <g transform="translate(50,50)">
+      <rect x="-5" y="-38" width="10" height="28" rx="5" fill="#C96A3A" transform="rotate(0)"/>
+      <rect x="-5" y="-38" width="10" height="28" rx="5" fill="#C96A3A" transform="rotate(45)"/>
+      <rect x="-5" y="-38" width="10" height="28" rx="5" fill="#C96A3A" transform="rotate(90)"/>
+      <rect x="-5" y="-38" width="10" height="28" rx="5" fill="#C96A3A" transform="rotate(135)"/>
+      <rect x="-5" y="-38" width="10" height="28" rx="5" fill="#C96A3A" transform="rotate(180)"/>
+      <rect x="-5" y="-38" width="10" height="28" rx="5" fill="#C96A3A" transform="rotate(225)"/>
+      <rect x="-5" y="-38" width="10" height="28" rx="5" fill="#C96A3A" transform="rotate(270)"/>
+      <rect x="-5" y="-38" width="10" height="28" rx="5" fill="#C96A3A" transform="rotate(315)"/>
+    </g>
+  </symbol>
+</svg>
+
+
+<!-- ════════ VIEW: DEFAULT ════════ -->
+<div class="view active" id="view-default">
+<div class="browser">
+  <div class="toolbar">
+    <div class="tlights"><div class="tl tlr"></div><div class="tl tly"></div><div class="tl tlg"></div></div>
+    <div class="tabs">
+      <div class="tab">✦ Typography | Apple Dev</div>
+      <div class="tab"><div class="fav" style="background:#1565C0;"></div> Cards – Material Design</div>
+      <div class="tab"><div class="fav" style="background:#4285F4;"></div> FONT USED IN BOOKS</div>
+      <div class="tab active"><div class="fav fav-claude">✦</div> Claude</div>
+    </div>
+    <div class="urlbar">claude.ai</div>
+  </div>
+  <div class="content">
+    <div class="sidebar">
+      <div class="sbi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+      <div class="sba">NS</div>
+    </div>
+    <div class="page">
+      <div class="greeting"><svg class="asterisk" viewBox="0 0 100 100"><use href="#asterisk"/></svg>Evening, Navdeep Singh</div>
+      <div class="pbox">
+        <div class="pinput">Smartwatch users research for psychologically responsible dashboard design</div>
+        <div class="pfooter">
+          <div class="pplus">+</div>
+          <div class="pright">
+            <div class="mchip">Sonnet 4.6 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+            <button class="sbtn"><svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extension: default, collapsible -->
+    <div class="ext-wrap" id="wrap-default">
+      <!-- Tab lives outside .ext so it stays visible when panel collapses -->
+      <div class="ext-tab" onclick="toggleExt('wrap-default')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="ext" id="ext-default">
+        <div class="ext-hdr">
+          <div class="ext-title">
+            <svg width="13" height="13" viewBox="0 0 100 100"><use href="#ast-sm"/></svg>
+            Sparrow
+          </div>
+        </div>
+        <div class="ext-body">
+          <div class="opt-list">
+            <button class="opt-btn btn-context" onclick="sv('context')">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Improve Context
+            </button>
+            <button class="opt-btn btn-token" onclick="sv('token')">
+              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Token Check
+            </button>
+          </div>
+        </div>
+        <div class="ext-footer">
+          <button class="dash-btn" onclick="window.open('sparrow-dashboard.html','_blank')">Go to dashboard <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- /view-default -->
+
+
+<!-- ════════ VIEW: IMPROVE CONTEXT ════════ -->
+<div class="view" id="view-context">
+<div class="browser">
+  <div class="toolbar">
+    <div class="tlights"><div class="tl tlr"></div><div class="tl tly"></div><div class="tl tlg"></div></div>
+    <div class="tabs">
+      <div class="tab">✦ Typography | Apple Dev</div>
+      <div class="tab"><div class="fav" style="background:#1565C0;"></div> Cards – Material Design</div>
+      <div class="tab"><div class="fav" style="background:#4285F4;"></div> FONT USED IN BOOKS</div>
+      <div class="tab active"><div class="fav fav-claude">✦</div> Claude</div>
+    </div>
+    <div class="urlbar">claude.ai</div>
+  </div>
+  <div class="content">
+    <div class="sidebar">
+      <div class="sbi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+      <div class="sba">NS</div>
+    </div>
+    <div class="page">
+      <div class="greeting"><svg class="asterisk" viewBox="0 0 100 100"><use href="#asterisk"/></svg>Evening, Navdeep Singh</div>
+      <div class="pbox">
+        <div class="pinput">Smartwatch users research for psychologically responsible dashboard design</div>
+        <div class="pfooter">
+          <div class="pplus">+</div>
+          <div class="pright">
+            <div class="mchip">Sonnet 4.6 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+            <button class="sbtn"><svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ext-wrap" id="wrap-context">
+      <div class="ext-tab" onclick="toggleExt('wrap-context')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="ext" id="ext-context">
+        <div class="ext-hdr">
+          <div class="ext-title">Improve Context</div>
+        </div>
+        <div class="ext-body">
+          <button class="back-btn" onclick="sv('default')">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+
+          <div class="sec-title">Contextual Questions<br>to consider</div>
+          <p class="sec-sub">Click a question to mark it as used in your prompt:</p>
+
+          <!-- Clickable questions — turn green on click -->
+          <div class="ctx-list" id="ctx-questions">
+            <div class="ctx-q" onclick="toggleCtxQ(this)">Which user groups are you targeting?</div>
+            <div class="ctx-q" onclick="toggleCtxQ(this)">When is the deadline of this project?</div>
+            <div class="ctx-q" onclick="toggleCtxQ(this)">What platform is the dashboard for?</div>
+            <div class="ctx-q" onclick="toggleCtxQ(this)">Are there existing design constraints?</div>
+            <div class="ctx-q" onclick="toggleCtxQ(this)">Who is the primary audience?</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="sec-label">Output Context</div>
+          <p class="hint">Select the format for your output:</p>
+          <div class="out-opts" id="radios-ctx">
+            <label class="out-opt"><div class="rdot on"></div> Text</label>
+            <label class="out-opt"><div class="rdot"></div> Image</label>
+            <label class="out-opt"><div class="rdot"></div> Text + Image</label>
+            <label class="out-opt"><div class="rdot"></div> Table</label>
+            <label class="out-opt"><div class="rdot"></div> Editable PDF</label>
+            <label class="out-opt"><div class="rdot"></div> Bullet list</label>
+          </div>
+        </div>
+        <div class="ext-footer">
+          <button class="dash-btn" onclick="window.open('sparrow-dashboard.html','_blank')">Go to dashboard <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- /view-context -->
+
+
+<!-- ════════ VIEW: TOKEN CHECK ════════ -->
+<div class="view" id="view-token">
+<div class="browser">
+  <div class="toolbar">
+    <div class="tlights"><div class="tl tlr"></div><div class="tl tly"></div><div class="tl tlg"></div></div>
+    <div class="tabs">
+      <div class="tab">✦ Typography | Apple Dev</div>
+      <div class="tab"><div class="fav" style="background:#1565C0;"></div> Cards – Material Design</div>
+      <div class="tab"><div class="fav" style="background:#4285F4;"></div> FONT USED IN BOOKS</div>
+      <div class="tab active"><div class="fav fav-claude">✦</div> Claude</div>
+    </div>
+    <div class="urlbar">claude.ai</div>
+  </div>
+  <div class="content">
+    <div class="sidebar">
+      <div class="sbi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="sbi"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+      <div class="sba">NS</div>
+    </div>
+    <div class="page">
+      <div class="greeting"><svg class="asterisk" viewBox="0 0 100 100"><use href="#asterisk"/></svg>Evening, Navdeep Singh</div>
+
+      <!-- Prompt box with token-coloured, hoverable words -->
+      <div class="pbox">
+        <div class="pinput">
+          <!-- 2 tokens = green; 3+ = amber/orange -->
+          <span class="tw tw2">Smartwatch<div class="tip">
+            <div class="tip-orig">smartwatch → 2 tokens</div>
+            <div class="tip-chips"><span class="tip-chip">smart</span><span class="tip-chip">watch</span></div>
+            <div class="tip-divider"></div>
+            <div class="tip-sub-label">Efficient alternative</div>
+            <div class="tip-sub-word">wearable</div>
+            <div class="tip-sub-count">1 token</div>
+          </div></span>
+          &nbsp;users research for&nbsp;
+          <span class="tw tw5">psychologically<div class="tip">
+            <div class="tip-orig">psychologically → 5 tokens</div>
+            <div class="tip-chips"><span class="tip-chip">psy</span><span class="tip-chip">cho</span><span class="tip-chip">logi</span><span class="tip-chip">cal</span><span class="tip-chip">ly</span></div>
+            <div class="tip-divider"></div>
+            <div class="tip-sub-label">Efficient alternative</div>
+            <div class="tip-sub-word">mentally</div>
+            <div class="tip-sub-count">3 tokens</div>
+          </div></span>
+          &nbsp;<span class="tw tw3">responsible<div class="tip">
+            <div class="tip-orig">responsible → 3 tokens</div>
+            <div class="tip-chips"><span class="tip-chip">resp</span><span class="tip-chip">ons</span><span class="tip-chip">ible</span></div>
+            <div class="tip-divider"></div>
+            <div class="tip-sub-label">Efficient alternative</div>
+            <div class="tip-sub-word">ethical</div>
+            <div class="tip-sub-count">2 tokens</div>
+          </div></span>
+          &nbsp;<span class="tw tw4">dashboard<div class="tip">
+            <div class="tip-orig">dashboard → 4 tokens</div>
+            <div class="tip-chips"><span class="tip-chip">dash</span><span class="tip-chip">bo</span><span class="tip-chip">ard</span><span class="tip-chip">·</span></div>
+            <div class="tip-divider"></div>
+            <div class="tip-sub-label">Efficient alternative</div>
+            <div class="tip-sub-word">control panel</div>
+            <div class="tip-sub-count">2 tokens</div>
+          </div></span>
+          &nbsp;design
+        </div>
+        <div class="pfooter">
+          <div class="pplus">+</div>
+          <div class="pright">
+            <div class="mchip">Sonnet 4.6 <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+            <button class="sbtn"><svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ext-wrap" id="wrap-token">
+      <div class="ext-tab" onclick="toggleExt('wrap-token')">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="ext" id="ext-token">
+        <div class="ext-hdr">
+          <div class="ext-title">Token Check</div>
+        </div>
+        <div class="ext-body">
+          <button class="back-btn" onclick="sv('default')">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </button>
+
+          <div class="stats-row">
+            <div class="stat-item"><span class="stat-lbl">Words</span><span class="stat-val">750</span></div>
+            <div class="stat-item"><span class="stat-lbl">Tokens</span><span class="stat-val">1500</span></div>
+          </div>
+
+          <p class="hint">Hover on any underlined word in the prompt to see its token breakdown and a more efficient alternative.</p>
+
+          <div class="divider"></div>
+
+          <!-- Colour legend -->
+          <div class="sec-label">Colour guide</div>
+          <div class="leg-list">
+            <div class="leg-row"><div class="leg-swatch" style="background:#27AE60;"></div> 2 tokens</div>
+            <div class="leg-row"><div class="leg-swatch" style="background:#E07A35;"></div> 3–4 tokens</div>
+            <div class="leg-row"><div class="leg-swatch" style="background:#C0392B;"></div> 5+ tokens</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Word list -->
+          <div class="sec-label">Multi-token words</div>
+          <div class="tok-list">
+            <div class="tok-row"><span class="tok-word-name">psychologically</span><span class="tok-count tc-red">5 tok</span></div>
+            <div class="tok-row"><span class="tok-word-name">dashboard</span><span class="tok-count tc-amb">4 tok</span></div>
+            <div class="tok-row"><span class="tok-word-name">responsible</span><span class="tok-count tc-amb">3 tok</span></div>
+            <div class="tok-row"><span class="tok-word-name">Smartwatch</span><span class="tok-count tc-grn">2 tok</span></div>
+          </div>
+        </div>
+        <div class="ext-footer">
+          <button class="dash-btn" onclick="window.open('sparrow-dashboard.html','_blank')">Go to dashboard <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- /view-token -->
+
+
+<script>
+/* View switcher */
+function sv(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  const map = ['default','context','token'];
+  document.querySelectorAll('.state-tab').forEach((t,i) => t.classList.toggle('active', map[i] === id));
+}
+
+/* Panel collapse/expand — toggles on the wrap so tab stays visible */
+function toggleExt(wrapId) {
+  const wrap = document.getElementById(wrapId);
+  wrap.classList.toggle('collapsed');
+}
+
+/* Context question toggle */
+function toggleCtxQ(el) {
+  el.classList.toggle('selected');
+}
+
+/* Radio buttons in context view */
+document.querySelectorAll('#view-context .out-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('#view-context .rdot').forEach(d => d.classList.remove('on'));
+    opt.querySelector('.rdot').classList.add('on');
+  });
+});
+</script>
+</body>
+</html>
