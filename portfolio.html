@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pranjal Sinha — UX & Service Designer</title>
+  <link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@400;600;700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #D0F9FF;
+      --text: #2B2B2B;
+      --accent: #182DA6;
+      --white: #ffffff;
+      --card-radius: 16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      background: rgba(208, 249, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(24,45,166,0.08);
+    }
+
+    .logo {
+      font-family: 'MuseoModerno', cursive;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    nav { display: flex; align-items: center; gap: 36px; }
+
+    nav a {
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--accent); }
+
+    .nav-resume {
+      background: var(--accent);
+      color: var(--white) !important;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-weight: 600 !important;
+      transition: opacity 0.2s !important;
+    }
+    .nav-resume:hover { opacity: 0.85; color: var(--white) !important; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 60px 80px;
+    }
+
+    .hero-inner {
+      max-width: 800px;
+    }
+
+    .hero-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+      opacity: 0.7;
+    }
+
+    .hero-name {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(56px, 8vw, 96px);
+      font-weight: 700;
+      line-height: 1.0;
+      color: var(--text);
+      margin-bottom: 28px;
+      letter-spacing: -2px;
+    }
+
+    .hero-tagline {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(18px, 2.5vw, 26px);
+      font-weight: 400;
+      color: var(--accent);
+      margin-bottom: 28px;
+      letter-spacing: -0.3px;
+    }
+
+    .hero-sub {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--text);
+      max-width: 560px;
+      line-height: 1.7;
+      opacity: 0.8;
+    }
+
+    .hero-cta {
+      margin-top: 48px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--white);
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent);
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1.5px solid var(--accent);
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { background: var(--accent); color: var(--white); }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 100px 60px; }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.6;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -1px;
+      margin-bottom: 56px;
+    }
+
+    /* ── WORK ── */
+    #work { background: var(--bg); }
+
+    .projects-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .project-card {
+      background: var(--white);
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 340px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 2px 20px rgba(24,45,166,0.06);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(24,45,166,0.14);
+    }
+
+    .project-card:nth-child(even) { direction: rtl; }
+    .project-card:nth-child(even) .card-content,
+    .project-card:nth-child(even) .card-image { direction: ltr; }
+
+    .card-content {
+      padding: 48px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.4;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+      line-height: 1.15;
+    }
+
+    .card-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text);
+      line-height: 1.7;
+      opacity: 0.85;
+      margin-bottom: 28px;
+    }
+
+    .card-role {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      opacity: 0.7;
+      letter-spacing: 0.5px;
+    }
+
+    .card-cta {
+      margin-top: 28px;
+      display: inline-block;
+      background: var(--accent);
+      color: var(--white);
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+      width: fit-content;
+    }
+    .card-cta:hover { opacity: 0.82; }
+
+    .card-image {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    .project-card:hover .card-image img { transform: scale(1.04); }
+
+    /* ── ABOUT ── */
+    #about {
+      background: var(--white);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .about-img-wrap {
+      position: relative;
+    }
+
+    .about-img-wrap img {
+      width: 100%;
+      border-radius: 16px;
+      object-fit: cover;
+      aspect-ratio: 4/5;
+      display: block;
+    }
+
+    .about-img-accent {
+      position: absolute;
+      bottom: -16px;
+      right: -16px;
+      width: 80px;
+      height: 80px;
+      background: var(--accent);
+      border-radius: 50%;
+      z-index: -1;
+    }
+
+    .about-greeting {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.6;
+      margin-bottom: 16px;
+    }
+
+    .about-headline {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(28px, 3.5vw, 42px);
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+
+    .about-body {
+      font-size: 17px;
+      font-weight: 300;
+      color: var(--text);
+      line-height: 1.8;
+      opacity: 0.82;
+      margin-bottom: 16px;
+    }
+
+    .about-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 32px;
+    }
+
+    .tag {
+      background: var(--bg);
+      color: var(--accent);
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(24,45,166,0.15);
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      background: var(--accent);
+      text-align: center;
+      padding: 100px 60px;
+    }
+
+    .contact-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--bg);
+      opacity: 0.6;
+      margin-bottom: 12px;
+    }
+
+    .contact-headline {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -1.5px;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+
+    .contact-sub {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--bg);
+      opacity: 0.8;
+      margin-bottom: 48px;
+    }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .contact-btn {
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .contact-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+    .contact-btn-mail {
+      background: var(--white);
+      color: var(--accent);
+    }
+
+    .contact-btn-linkedin {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.5);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      padding: 24px 60px;
+      font-size: 13px;
+      font-weight: 300;
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      header { padding: 16px 24px; }
+      section { padding: 72px 24px; }
+      #hero { padding: 100px 24px 60px; }
+      #contact { padding: 72px 24px; }
+
+      .project-card {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .project-card:nth-child(even) { direction: ltr; }
+      .card-image { height: 240px; }
+      .card-content { padding: 32px 28px; }
+
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      nav { gap: 20px; }
+      nav a:not(.nav-resume) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="#hero" class="logo">Pranjal Sinha</a>
+    <nav>
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="https://drive.google.com/file/d/179NjP0KrsVh56cTWxsj-q6S9CYf0p6n8/view?usp=sharing" target="_blank" class="nav-resume">Resume ↗</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-inner reveal">
+      <p class="hero-label">Portfolio · 2026</p>
+      <h1 class="hero-name">Pranjal<br/>Sinha</h1>
+      <p class="hero-tagline">Product Designer &amp; Systems Thinker</p>
+      <p class="hero-sub">Focused on problem-first, research-led solutions, with a growing practice in AI-assisted design. Currently pursuing a Master's in Design.</p>
+      <div class="hero-cta">
+        <a href="#work" class="btn-primary">View Work</a>
+        <a href="https://drive.google.com/file/d/179NjP0KrsVh56cTWxsj-q6S9CYf0p6n8/view?usp=sharing" target="_blank" class="btn-secondary">Resume ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section id="work">
+    <p class="section-label reveal">Selected Projects</p>
+    <h2 class="section-title reveal">Hand-Picked Works</h2>
+
+    <div class="projects-grid">
+
+      <!-- SPARROW -->
+      <a class="project-card reveal" href="https://www.behance.net/gallery/247119881/UXUI-Optimising-AI-Workflows-for-Professionals" target="_blank">
+        <div class="card-content">
+          <p class="card-meta">Case Study 01 &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; Browser Extension</p>
+          <h3 class="card-title">Sparrow</h3>
+          <p class="card-desc">Solving inefficient AI usage caused by lack of feedback on prompts. Designed a browser extension with a companion dashboard that helps users improve prompt quality and track their progress over time.</p>
+          <p class="card-role">Role: Product Designer</p>
+          <span class="card-cta">Read Case Study →</span>
+        </div>
+        <div class="card-image">
+          <img src="./assets/sparrow.jpeg" alt="Sparrow — Optimising AI Based Workflows"/>
+        </div>
+      </a>
+
+      <!-- KNOW YOUR SHELF -->
+      <a class="project-card reveal" href="https://www.behance.net/gallery/246942429/Information-Design-University-Library" target="_blank">
+        <div class="card-content">
+          <p class="card-meta">Case Study 02 &nbsp;·&nbsp; University Library &nbsp;·&nbsp; Information Design</p>
+          <h3 class="card-title">Know Your Shelf</h3>
+          <p class="card-desc">Solving inefficient resource discovery in the NIFT Bengaluru library. Designed a visual navigation system that maps resources to shelves using a spatial guide, enabling faster and more intuitive browsing.</p>
+          <p class="card-role">Role: Information Designer</p>
+          <span class="card-cta">Read Case Study →</span>
+        </div>
+        <div class="card-image">
+          <img src="./assets/know-your-shelf.png" alt="Know Your Shelf — Information Design"/>
+        </div>
+      </a>
+
+      <!-- SAFE SPACES -->
+      <a class="project-card reveal" href="https://www.behance.net/gallery/247467363/UXUI-Safe-Spaces?platform=direct" target="_blank">
+        <div class="card-content">
+          <p class="card-meta">Case Study 03 &nbsp;·&nbsp; Mobile App &nbsp;·&nbsp; Product Design</p>
+          <h3 class="card-title">Safe Spaces</h3>
+          <p class="card-desc">Solving inconsistent journaling caused by lack of privacy and focus. Built a secure, distraction-free journaling platform that supports reflection, habit-building, and meaningful sharing of personal experiences.</p>
+          <p class="card-role">Role: Product Designer</p>
+          <span class="card-cta">Read Case Study →</span>
+        </div>
+        <div class="card-image">
+          <img src="./assets/safe-spaces.jpg" alt="Safe Spaces — Journaling Platform"/>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-img-wrap reveal">
+        <img src="./assets/about-me.jpg" alt="Pranjal Sinha" />
+        <div class="about-img-accent"></div>
+      </div>
+      <div class="reveal">
+        <p class="about-greeting">About Me</p>
+        <h2 class="about-headline">Hello Again!<br/>I'm Pranjal.</h2>
+        <p class="about-body">When I'm not designing, I'm usually writing poetry, reading novels, or solving Sudoku puzzles on the New York Times.</p>
+        <div class="about-tags">
+          <span class="tag">Problem-first</span>
+          <span class="tag">Research-led</span>
+          <span class="tag">AI-fluent</span>
+          <span class="tag">Systems Thinking</span>
+          <span class="tag">Service Design</span>
+          <span class="tag">Information Design</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <p class="contact-label reveal">Get In Touch</p>
+    <h2 class="contact-headline reveal">Let's work<br/>together.</h2>
+    <p class="contact-sub reveal">Open to internships, collaborations, and good conversations.</p>
+    <div class="contact-links reveal">
+      <a href="mailto:pranjal.sinha@nift.ac.in" class="contact-btn contact-btn-mail">pranjal.sinha@nift.ac.in</a>
+      <a href="https://www.linkedin.com/in/pranjal-sinha-9132501b3" target="_blank" class="contact-btn contact-btn-linkedin">LinkedIn ↗</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Pranjal Sinha · Designed with intention.</p>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Stagger cards
+    document.querySelectorAll('.project-card').forEach((card, i) => {
+      card.style.transitionDelay = `${i * 0.1}s`;
+    });
+  </script>
+
+</body>
+</html>
