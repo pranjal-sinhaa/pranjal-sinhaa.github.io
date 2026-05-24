@@ -9,7 +9,7 @@
     :root {
       --bg: #D0F9FF;
       --text: #2B2B2B;
-      --accent: #182DA6;
+      --accent: #04567C;
       --white: #ffffff;
       --card-radius: 16px;
     }
@@ -74,14 +74,13 @@
 
     /* ── HERO ── */
     #hero {
-      min-height: 100vh;
       display: flex;
       align-items: center;
-      padding: 120px 60px 80px;
+      padding: 140px 60px 32px;
     }
 
     .hero-inner {
-      max-width: 800px;
+      width: 100%;
     }
 
     .hero-label {
@@ -90,42 +89,55 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       opacity: 0.7;
     }
 
     .hero-name {
       font-family: 'MuseoModerno', cursive;
-      font-size: clamp(56px, 8vw, 96px);
+      font-size: clamp(80px, 14vw, 160px);
       font-weight: 700;
-      line-height: 1.0;
+      line-height: 0.88;
       color: var(--text);
-      margin-bottom: 28px;
-      letter-spacing: -2px;
+      margin-bottom: 32px;
+      letter-spacing: -4px;
+      width: 100%;
+    }
+
+    .hero-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 48px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(24,45,166,0.12);
+    }
+
+    .hero-bottom-left {
+      max-width: 520px;
     }
 
     .hero-tagline {
       font-family: 'MuseoModerno', cursive;
-      font-size: clamp(18px, 2.5vw, 26px);
+      font-size: clamp(16px, 2vw, 22px);
       font-weight: 400;
       color: var(--accent);
-      margin-bottom: 28px;
+      margin-bottom: 10px;
       letter-spacing: -0.3px;
     }
 
     .hero-sub {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 300;
       color: var(--text);
-      max-width: 560px;
       line-height: 1.7;
       opacity: 0.8;
     }
 
     .hero-cta {
-      margin-top: 48px;
       display: flex;
       gap: 16px;
+      flex-shrink: 0;
     }
 
     .btn-primary {
@@ -176,7 +188,7 @@
     }
 
     /* ── WORK ── */
-    #work { background: var(--bg); }
+    #work { background: var(--bg); padding-top: 40px; }
 
     .projects-grid {
       display: flex;
@@ -190,7 +202,7 @@
       overflow: hidden;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      min-height: 340px;
+      min-height: 480px;
       text-decoration: none;
       color: inherit;
       box-shadow: 0 2px 20px rgba(24,45,166,0.06);
@@ -274,6 +286,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center top;
       transition: transform 0.5s;
     }
     .project-card:hover .card-image img { transform: scale(1.04); }
@@ -446,9 +459,16 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
       header { padding: 16px 24px; }
-      section { padding: 72px 24px; }
-      #hero { padding: 100px 24px 60px; }
+      section { padding: 60px 24px 100px; }
+      #hero { padding: 100px 24px 40px; }
+      #work { padding-top: 48px; }
       #contact { padding: 72px 24px; }
+
+      .hero-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+      }
 
       .project-card {
         grid-template-columns: 1fr;
@@ -477,7 +497,7 @@
       <a href="#work">Work</a>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
-      <a href="https://drive.google.com/file/d/179NjP0KrsVh56cTWxsj-q6S9CYf0p6n8/view?usp=sharing" target="_blank" class="nav-resume">Resume ↗</a>
+      <a href="https://drive.google.com/file/d/1UnsL_IBBWgeCeReUbLyPKqwdmIr7ce6L/view" target="_blank" class="nav-resume">Resume ↗</a>
     </nav>
   </header>
 
@@ -486,11 +506,15 @@
     <div class="hero-inner reveal">
       <p class="hero-label">Portfolio · 2026</p>
       <h1 class="hero-name">Pranjal<br/>Sinha</h1>
-      <p class="hero-tagline">Product Designer &amp; Systems Thinker</p>
-      <p class="hero-sub">Focused on problem-first, research-led solutions, with a growing practice in AI-assisted design. Currently pursuing a Master's in Design.</p>
-      <div class="hero-cta">
-        <a href="#work" class="btn-primary">View Work</a>
-        <a href="https://drive.google.com/file/d/179NjP0KrsVh56cTWxsj-q6S9CYf0p6n8/view?usp=sharing" target="_blank" class="btn-secondary">Resume ↗</a>
+      <div class="hero-bottom">
+        <div class="hero-bottom-left">
+          <p class="hero-tagline">Product Designer &amp; Systems Thinker</p>
+          <p class="hero-sub">Focused on problem-first, research-led solutions, with a growing practice in AI-assisted design. Currently pursuing a Master's in Design.</p>
+        </div>
+        <div class="hero-cta">
+          <a href="#work" class="btn-primary">View Work</a>
+          <a href="https://drive.google.com/file/d/1UnsL_IBBWgeCeReUbLyPKqwdmIr7ce6L/view" target="_blank" class="btn-secondary">Resume ↗</a>
+        </div>
       </div>
     </div>
   </section>
@@ -502,56 +526,58 @@
 
     <div class="projects-grid">
 
-      <!-- SPARROW -->
-      <a class="project-card reveal" href="https://www.behance.net/gallery/247119881/UXUI-Optimising-AI-Workflows-for-Professionals" target="_blank">
+      <!-- TIRA -->
+      <a class="project-card reveal" href="tira.html">
         <div class="card-content">
-          <p class="card-meta">Case Study 01 &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; Browser Extension</p>
-          <h3 class="card-title">Sparrow</h3>
-          <p class="card-desc">Solving inefficient AI usage caused by lack of feedback on prompts. Designed a browser extension with a companion dashboard that helps users improve prompt quality and track their progress over time.</p>
-          <p class="card-role">Role: Product Designer</p>
+          <p class="card-meta">Case Study 01 &nbsp;·&nbsp; Browsing Experience &nbsp;·&nbsp; App Redesign</p>
+          <h3 class="card-title">Tira App Redesign</h3>
+          <p class="card-desc">As a frequent Tira user I noticed the friction points in the app's browsing experience and redesigned that experience with aim of improving the luxe perception of the brand and improving conversions within the app.</p>
+          <p class="card-role">Role: Auditor and User Experience Designer</p>
           <span class="card-cta">Read Case Study →</span>
         </div>
         <div class="card-image">
-          <img src="./assets/sparrow.jpeg" alt="Sparrow — Optimising AI Based Workflows"/>
+          <img src="./assets/tira-cover.png" alt="Tira App Redesign"/>
         </div>
       </a>
 
       <!-- KNOW YOUR SHELF -->
-      <a class="project-card reveal" href="https://www.behance.net/gallery/246942429/Information-Design-University-Library" target="_blank">
+      <a class="project-card reveal" href="know-your-shelf.html">
         <div class="card-content">
           <p class="card-meta">Case Study 02 &nbsp;·&nbsp; University Library &nbsp;·&nbsp; Information Design</p>
           <h3 class="card-title">Know Your Shelf</h3>
-          <p class="card-desc">Solving inefficient resource discovery in the NIFT Bengaluru library. Designed a visual navigation system that maps resources to shelves using a spatial guide, enabling faster and more intuitive browsing.</p>
+          <p class="card-desc">Designed a visual navigation system that maps resources to shelves using a resource and spatial guide, enabling faster and independent resource browsing experience.</p>
           <p class="card-role">Role: Information Designer</p>
           <span class="card-cta">Read Case Study →</span>
         </div>
         <div class="card-image">
-          <img src="./assets/know-your-shelf.png" alt="Know Your Shelf — Information Design"/>
+          <img src="./assets/kys-cover.jpg" alt="Know Your Shelf — Information Design"/>
         </div>
       </a>
 
-      <!-- SAFE SPACES -->
-      <a class="project-card reveal" href="https://www.behance.net/gallery/247467363/UXUI-Safe-Spaces?platform=direct" target="_blank">
+      <!-- SPARROW -->
+      <a class="project-card reveal" href="sparrow.html">
         <div class="card-content">
-          <p class="card-meta">Case Study 03 &nbsp;·&nbsp; Mobile App &nbsp;·&nbsp; Product Design</p>
-          <h3 class="card-title">Safe Spaces</h3>
-          <p class="card-desc">Solving inconsistent journaling caused by lack of privacy and focus. Built a secure, distraction-free journaling platform that supports reflection, habit-building, and meaningful sharing of personal experiences.</p>
-          <p class="card-role">Role: Product Designer</p>
+          <p class="card-meta">Case Study 03 &nbsp;·&nbsp; Browser Extension &nbsp;·&nbsp; Dashboard Design</p>
+          <h3 class="card-title">Sparrow</h3>
+          <p class="card-desc">While studying Human-AI interaction patterns, I observed how users repeatedly retry prompts due to the absence of meaningful feedback from AI systems. Sparrow was designed to optimise AI workflows by helping users improve prompt clarity, structure, and context in real time.</p>
+          <p class="card-role">Role: Design Researcher and Design Engineer</p>
           <span class="card-cta">Read Case Study →</span>
         </div>
         <div class="card-image">
-          <img src="./assets/safe-spaces.jpg" alt="Safe Spaces — Journaling Platform"/>
+          <img src="./assets/sparrow-cover.jpg" alt="Sparrow — Optimising AI Based Workflows"/>
         </div>
       </a>
 
     </div>
   </section>
 
+  <!-- ALSO MADE -->
+
   <!-- ABOUT -->
   <section id="about">
     <div class="about-grid">
       <div class="about-img-wrap reveal">
-        <img src="./assets/about-me.jpg" alt="Pranjal Sinha" />
+        <img src="./assets/pranjal-photo.jpeg" alt="Pranjal Sinha" />
         <div class="about-img-accent"></div>
       </div>
       <div class="reveal">

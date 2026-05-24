@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Know Your Shelf — Pranjal Sinha</title>
+  <link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@400;600;700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #D0F9FF;
+      --text: #2B2B2B;
+      --accent: #04567C;
+      --white: #ffffff;
+      --card-radius: 16px;
+      --sidebar-w: 220px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--white);
+      color: var(--text);
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      background: rgba(208, 249, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(24,45,166,0.08);
+    }
+
+    .logo {
+      font-family: 'MuseoModerno', cursive;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    nav { display: flex; align-items: center; gap: 36px; }
+    nav a {
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--accent); }
+    .nav-resume {
+      background: var(--accent);
+      color: var(--white) !important;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-weight: 600 !important;
+    }
+    .nav-resume:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    .cs-hero {
+      padding: 140px 60px 80px;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(24,45,166,0.08);
+    }
+
+    .cs-hero-tag {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.4;
+      margin-bottom: 20px;
+    }
+
+    .cs-hero-title {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(42px, 6vw, 76px);
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -2px;
+      line-height: 1.0;
+      margin-bottom: 28px;
+      max-width: 820px;
+    }
+
+    .cs-hero-desc {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--text);
+      opacity: 0.78;
+      max-width: 640px;
+      line-height: 1.75;
+      margin-bottom: 52px;
+    }
+
+    /* Metadata row — styled like "Role: Information Designer" */
+    .cs-meta-row {
+      display: flex;
+      gap: 56px;
+      flex-wrap: wrap;
+      padding-top: 36px;
+      border-top: 1px solid rgba(24,45,166,0.12);
+    }
+
+    .cs-meta-item {}
+
+    .cs-meta-label {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text);
+      opacity: 0.5;
+      margin-bottom: 4px;
+    }
+
+    .cs-meta-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1.5;
+    }
+
+    .cs-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .cs-tag {
+      background: rgba(24,45,166,0.08);
+      color: var(--accent);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── LAYOUT ── */
+    .cs-body {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 60px 0 36px;
+      gap: 48px;
+    }
+
+    /* ── STICKY SIDEBAR ── */
+    .cs-sidebar { padding-top: 64px; }
+
+    .cs-toc {
+      position: sticky;
+      top: 100px;
+    }
+
+    .cs-toc-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.35;
+      margin-bottom: 20px;
+    }
+
+    .cs-toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cs-toc-list li a {
+      display: block;
+      padding: 8px 12px;
+      border-left: 2px solid rgba(24,45,166,0.1);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text);
+      opacity: 0.5;
+      text-decoration: none;
+      transition: all 0.2s;
+      line-height: 1.3;
+    }
+
+    .cs-toc-list li a:hover,
+    .cs-toc-list li a.active {
+      border-left-color: var(--accent);
+      color: var(--accent);
+      opacity: 1;
+      font-weight: 600;
+    }
+
+    /* ── CONTENT ── */
+    .cs-content {
+      padding-top: 64px;
+      padding-bottom: 100px;
+    }
+
+    .cs-section { margin-bottom: 80px; }
+
+    .cs-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.55;
+      margin-bottom: 12px;
+    }
+
+    .cs-section-title {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(26px, 3vw, 36px);
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.8px;
+      margin-bottom: 20px;
+      line-height: 1.15;
+    }
+
+    .cs-section-body {
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--text);
+      opacity: 0.82;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    /* Pull quote */
+    .cs-pull-quote {
+      background: var(--bg);
+      border-left: 3px solid var(--accent);
+      padding: 24px 32px;
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .cs-pull-quote p {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.3px;
+      line-height: 1.6;
+    }
+
+    /* Images */
+    .cs-img-block { margin: 40px 0; }
+    .cs-img-block img {
+      width: 100%;
+      border-radius: 12px;
+      display: block;
+      border: 1px solid rgba(24,45,166,0.08);
+    }
+    .cs-img-caption {
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text);
+      opacity: 0.45;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Features */
+    .cs-features {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+      margin-top: 32px;
+    }
+
+    .cs-feature {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .cs-feature-num {
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      opacity: 0.45;
+      letter-spacing: 0.5px;
+      padding-top: 2px;
+    }
+
+    .cs-feature-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .cs-feature-desc {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text);
+      opacity: 0.75;
+      line-height: 1.75;
+    }
+
+    /* ── SMALL CTA ── */
+    .cs-cta-small {
+      margin-top: 56px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: var(--white);
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .cs-cta-small:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* Divider */
+    .cs-divider {
+      border: none;
+      border-top: 1px solid rgba(24,45,166,0.1);
+      margin: 60px 0;
+    }
+
+    /* ── NEXT PROJECT ── */
+    .cs-next {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 60px 80px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .cs-next-inner { text-align: right; }
+
+    .cs-next-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.35;
+      margin-bottom: 10px;
+    }
+
+    .cs-next-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+
+    .cs-next-name {
+      font-family: 'MuseoModerno', cursive;
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -1px;
+      transition: opacity 0.2s;
+    }
+    .cs-next-link:hover .cs-next-name { opacity: 0.75; }
+
+    .cs-next-arrow {
+      width: 52px;
+      height: 52px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 22px;
+      transition: transform 0.3s;
+      flex-shrink: 0;
+    }
+    .cs-next-link:hover .cs-next-arrow { transform: translateX(5px); }
+
+    /* Footer */
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      padding: 24px 60px;
+      font-size: 13px;
+      font-weight: 300;
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      header { padding: 16px 24px; }
+      .cs-hero { padding: 110px 24px 60px; }
+      .cs-body { grid-template-columns: 1fr; padding: 0 24px; gap: 0; }
+      .cs-sidebar { display: none; }
+      .cs-next { padding: 40px 24px 60px; }
+      nav a:not(.nav-resume) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="index.html" class="logo">Pranjal Sinha</a>
+    <nav>
+      <a href="index.html#work">Work</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#contact">Contact</a>
+      <a href="https://drive.google.com/file/d/1UnsL_IBBWgeCeReUbLyPKqwdmIr7ce6L/view" target="_blank" class="nav-resume">Resume ↗</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <div class="cs-hero">
+    <p class="cs-hero-tag reveal">Case Study 02 &nbsp;·&nbsp; University Library &nbsp;·&nbsp; Information Design</p>
+    <h1 class="cs-hero-title reveal">Know Your Shelf</h1>
+
+    <div class="cs-tags reveal">
+      <span class="cs-tag">Information Design</span>
+      <span class="cs-tag">Brochure Design</span>
+      <span class="cs-tag">Interior Map</span>
+    </div>
+
+    <p class="cs-hero-desc reveal">I spent 7 days observing the behaviour and interaction patterns of students at NIFT Library. They spent 5 minutes searching the shelves till they found the resource they were looking for. So I studied the resource finding system and created a resource discovery system to enable easy and efficient resource navigation.</p>
+
+    <div class="cs-meta-row reveal">
+      <div class="cs-meta-item">
+        <p class="cs-meta-label">Timeline</p>
+        <p class="cs-meta-value">1 Month</p>
+      </div>
+      <div class="cs-meta-item">
+        <p class="cs-meta-label">Role</p>
+        <p class="cs-meta-value">User Research, Data Visualiser<br/>and Information Designer</p>
+      </div>
+      <div class="cs-meta-item">
+        <p class="cs-meta-label">Methods</p>
+        <p class="cs-meta-value">Observation and User Interview</p>
+      </div>
+      <div class="cs-meta-item">
+        <p class="cs-meta-label">Software</p>
+        <p class="cs-meta-value">Procreate, Figma, ChatGPT</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="cs-body">
+
+    <!-- SIDEBAR TOC -->
+    <aside class="cs-sidebar">
+      <nav class="cs-toc">
+        <p class="cs-toc-label">Contents</p>
+        <ul class="cs-toc-list">
+          <li><a href="#problem" class="active">Problem Overview</a></li>
+          <li><a href="#statement">Problem Statement</a></li>
+          <li><a href="#why-matters">Why It Matters</a></li>
+          <li><a href="#solution">The Solution</a></li>
+          <li><a href="#features">Key Features</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="cs-content">
+
+      <!-- PROBLEM OVERVIEW -->
+      <section class="cs-section reveal" id="problem">
+        <p class="cs-section-label">Problem Overview</p>
+
+        <div class="cs-img-block">
+          <img src="./assets/kys-problem-slide.png" alt="Research data visualisation — time students spend finding books over 7 days"/>
+          <p class="cs-img-caption">7-day observation study — time spent finding books per student, per visit</p>
+        </div>
+      </section>
+
+      <!-- PROBLEM STATEMENT -->
+      <section class="cs-section reveal" id="statement">
+        <p class="cs-section-label">Problem Statement</p>
+        <p class="cs-section-body">Students who want to browse specific themes in the library are unable to do so efficiently. Additionally, students who want to know what resources are present in the library are unable to do that via the existing information system at the NIFT Bengaluru Library.</p>
+      </section>
+
+      <!-- WHY IT MATTERS -->
+      <section class="cs-section reveal" id="why-matters">
+        <p class="cs-section-label">Why It Matters</p>
+        <div class="cs-pull-quote">
+          <p>When resource discovery becomes difficult, students spend more time searching than learning, reducing meaningful engagement with the library and limiting opportunities for research, exploration, and interdisciplinary thinking.</p>
+        </div>
+      </section>
+
+      <hr class="cs-divider"/>
+
+      <!-- SOLUTION -->
+      <section class="cs-section reveal" id="solution">
+        <p class="cs-section-label">The Solution</p>
+
+        <div class="cs-img-block">
+          <img src="./assets/kys-solution-slide.jpg" alt="The Bookshelf resource guide and NIFT Library floor map"/>
+          <p class="cs-img-caption">The Bookshelf (resource guide) + Map of NIFT Library</p>
+        </div>
+      </section>
+
+      <!-- KEY FEATURES -->
+      <section class="cs-section reveal" id="features">
+        <p class="cs-section-label">Key Features</p>
+
+        <div class="cs-features">
+          <div class="cs-feature">
+            <span class="cs-feature-num">01</span>
+            <div>
+              <p class="cs-feature-title">Colour-coded categorisation system</p>
+              <p class="cs-feature-desc">Resources were organised into distinct colour-coded subject categories, enabling students to identify themes and navigate the library more intuitively at a glance.</p>
+            </div>
+          </div>
+          <div class="cs-feature">
+            <span class="cs-feature-num">02</span>
+            <div>
+              <p class="cs-feature-title">Dual-layer navigation approach</p>
+              <p class="cs-feature-desc">The solution combined a detailed bookshelf inspired resource guide and spatial library map, helping users understand both the overall layout and the exact location of resources within shelves.</p>
+            </div>
+          </div>
+          <div class="cs-feature">
+            <span class="cs-feature-num">03</span>
+            <div>
+              <p class="cs-feature-title">Designed for exploration, not just retrieval</p>
+              <p class="cs-feature-desc">Instead of only helping users find known books, the system encouraged thematic browsing and interdisciplinary discovery, making the library easier to engage with as a learning space.</p>
+            </div>
+          </div>
+        </div>
+
+        <a href="https://www.behance.net/gallery/246942429/Information-Design-University-Library" target="_blank" class="cs-cta-small">
+          Read the detailed case study →
+        </a>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- NEXT PROJECT -->
+  <div class="cs-next reveal">
+    <div class="cs-next-inner">
+      <p class="cs-next-label">Next Project</p>
+      <a href="sparrow.html" class="cs-next-link">
+        <span class="cs-next-name">Sparrow</span>
+        <span class="cs-next-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Pranjal Sinha · Designed with intention.</p>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 60);
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    reveals.forEach(el => revealObserver.observe(el));
+
+    // Active TOC highlight
+    const sections = document.querySelectorAll('.cs-content section[id]');
+    const tocLinks = document.querySelectorAll('.cs-toc-list a');
+
+    const tocObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(link => link.classList.remove('active'));
+          const activeLink = document.querySelector(`.cs-toc-list a[href="#${entry.target.id}"]`);
+          if (activeLink) activeLink.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+
+    sections.forEach(section => tocObserver.observe(section));
+  </script>
+
+</body>
+</html>
