@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shameera Shah — Disengagement Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ============ TOKENS ============ */
+:root{
+  --bg:#F1E9DE;
+  --bg-raised:#e9dfd0;
+  --ink:#071012;
+  --burgundy:#5C071F;
+  --red:#A31318;
+  --amber:#F3A300;
+  --grey:#8E8A84;
+  --blue:#2678E8;
+  --border: rgba(7,16,18,0.16);
+  --border-strong: rgba(7,16,18,0.32);
+
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Manrope', -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  --container: 1240px;
+  --gutter: clamp(20px, 5vw, 64px);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:17px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+img,svg{max-width:100%;display:block;}
+
+a{color:inherit;}
+
+.wrap{
+  max-width:var(--container);
+  margin:0 auto;
+  padding-left:var(--gutter);
+  padding-right:var(--gutter);
+}
+
+.meta-label{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--grey);
+  transition:opacity 0.9s ease;
+}
+
+.eyebrow-num{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--burgundy);
+  letter-spacing:0.06em;
+}
+
+h1,h2,h3{
+  font-family:var(--serif);
+  font-weight:500;
+  margin:0;
+  letter-spacing:-0.01em;
+}
+
+.display{
+  font-family:var(--serif);
+  font-weight:500;
+  font-size:clamp(52px, 9vw, 108px);
+  line-height:0.96;
+  letter-spacing:-0.02em;
+  margin:0;
+}
+
+.h1{font-size:clamp(38px, 5.2vw, 68px); line-height:1.04;}
+.h2{font-size:clamp(26px, 3.2vw, 40px); line-height:1.12;}
+.h3{font-size:clamp(20px, 2.2vw, 25px); line-height:1.25;}
+
+p{margin:0 0 1em 0; max-width:62ch;}
+p.lede{
+  font-family:var(--serif);
+  font-size:clamp(20px, 2.4vw, 27px);
+  line-height:1.4;
+  max-width:34ch;
+}
+
+.rule{
+  border:none;
+  border-top:1px solid var(--border);
+  margin:0;
+}
+
+section{
+  padding:clamp(64px, 10vw, 140px) 0;
+  position:relative;
+}
+section + section{
+  border-top:1px solid var(--border);
+}
+
+.btn{
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:0.02em;
+  padding:14px 26px;
+  border-radius:10px;
+  cursor:pointer;
+  display:inline-block;
+  transition:background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.btn-primary{
+  background:var(--ink);
+  color:var(--bg);
+  border:1px solid var(--ink);
+}
+.btn-primary:hover{background:var(--burgundy); border-color:var(--burgundy);}
+.btn-secondary{
+  background:transparent;
+  color:var(--ink);
+  border:1px solid var(--border-strong);
+}
+.btn-secondary:hover{border-color:var(--ink);}
+.text-btn{
+  background:none;
+  border:none;
+  font-family:var(--mono);
+  font-size:13px;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  color:var(--ink);
+  cursor:pointer;
+  padding:0;
+}
+
+:focus-visible{
+  outline:2px solid var(--burgundy);
+  outline-offset:3px;
+}
+
+/* ============ NAV ============ */
+#nav{
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:20px var(--gutter);
+  background:rgba(241,233,222,0.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid transparent;
+  transition:opacity 0.9s ease, border-color 0.3s ease;
+}
+#nav.scrolled{border-bottom-color:var(--border);}
+.nav-name{
+  font-family:var(--serif);
+  font-size:17px;
+  font-weight:600;
+  letter-spacing:0.01em;
+}
+.nav-links{
+  display:flex;
+  gap:32px;
+  list-style:none;
+  margin:0; padding:0;
+}
+.nav-links a{
+  font-family:var(--sans);
+  font-size:14px;
+  font-weight:500;
+  text-decoration:none;
+  color:var(--ink);
+  opacity:0.75;
+  transition:opacity 0.2s ease;
+}
+.nav-links a:hover{opacity:1;}
+.nav-status{
+  font-family:var(--mono);
+  font-size:11.5px;
+  letter-spacing:0.08em;
+  color:var(--grey);
+  white-space:nowrap;
+}
+.nav-right{display:flex; align-items:center; gap:28px;}
+
+@media (max-width:760px){
+  #nav{flex-wrap:wrap; row-gap:10px; padding:16px var(--gutter);}
+  .nav-links{gap:18px; order:3; width:100%;}
+  .nav-links a{font-size:13px;}
+}
+
+/* ============ HERO ============ */
+#hero{
+  padding-top:clamp(120px,18vw,180px);
+  border-top:none;
+}
+.hero-grid{
+  display:grid;
+  grid-template-columns:1.1fr 0.9fr;
+  gap:clamp(30px,5vw,70px);
+  align-items:center;
+}
+.hero-name{margin-bottom:22px;}
+.hero-role{
+  font-family:var(--mono);
+  font-size:clamp(13px,1.6vw,16px);
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--burgundy);
+  margin-bottom:34px;
+}
+.hero-statement{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(19px,2vw,23px);
+  line-height:1.45;
+  max-width:38ch;
+  margin-bottom:24px;
+  color:var(--ink);
+}
+.hero-manifesto{
+  font-size:16px;
+  color:#2c2825;
+  max-width:44ch;
+  margin-bottom:36px;
+}
+.hero-caption{
+  font-family:var(--mono);
+  font-size:12.5px;
+  color:var(--grey);
+  letter-spacing:0.02em;
+  margin-top:14px;
+  max-width:34ch;
+}
+.hero-visual{position:relative;}
+
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr;}
+  .hero-visual{order:-1; max-width:340px; margin:0 auto 20px;}
+}
+
+/* ============ WHAT I DESIGN ============ */
+.role-top{
+  display:grid;
+  grid-template-columns:0.85fr 1.15fr;
+  gap:clamp(30px,5vw,80px);
+  margin-bottom:80px;
+}
+.role-top .h2{max-width:14ch;}
+.anticipates-list{
+  list-style:none;
+  margin:22px 0 26px 0;
+  padding:0;
+  font-family:var(--mono);
+  font-size:14px;
+  letter-spacing:0.03em;
+  color:var(--burgundy);
+}
+.anticipates-list li{padding:4px 0;}
+
+.principles{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  margin-bottom:70px;
+}
+.principle{
+  background:var(--bg);
+  padding:34px 26px;
+}
+.principle h3{
+  font-size:clamp(22px,2.6vw,28px);
+  margin-bottom:10px;
+}
+.principle p{font-size:14.5px; color:#3a3532; max-width:none;}
+
+@media (max-width:900px){
+  .role-top{grid-template-columns:1fr;}
+  .principles{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:560px){
+  .principles{grid-template-columns:1fr;}
+}
+
+.cost-line{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+  font-family:var(--mono);
+  font-size:13px;
+  letter-spacing:0.05em;
+  color:var(--grey);
+  text-transform:uppercase;
+  margin-top:6px;
+}
+.cost-line span.plus{color:var(--border-strong);}
+
+.beliefs{
+  margin-top:80px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:28px 60px;
+}
+.belief{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:19px;
+  line-height:1.5;
+  border-left:2px solid var(--burgundy);
+  padding-left:20px;
+  max-width:none;
+}
+@media (max-width:760px){.beliefs{grid-template-columns:1fr;}}
+
+/* ============ PHILOSOPHY ============ */
+#philosophy{background:var(--bg-raised);}
+.philosophy-intro{max-width:56ch; margin-bottom:60px;}
+.dont-list{
+  margin:0 0 50px 0;
+  padding:0;
+}
+.dont-list div{
+  font-family:var(--serif);
+  font-size:clamp(30px,5vw,58px);
+  line-height:1.1;
+  font-weight:500;
+  color:var(--ink);
+}
+.dont-list div:nth-child(1){opacity:1;}
+.dont-list div:nth-child(2){opacity:0.88;}
+.dont-list div:nth-child(3){opacity:0.76;}
+.dont-list div:nth-child(4){opacity:0.64;}
+.dont-list div:nth-child(5){opacity:0.52;}
+.dont-list div:nth-child(6){opacity:0.4;}
+.dont-list div:nth-child(7){opacity:0.28;}
+
+.nothing-line{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(20px,2.4vw,26px);
+  margin-bottom:0;
+}
+.void{height:clamp(120px,22vw,300px);}
+
+/* simulator */
+.simulator{
+  margin-top:20px;
+  border:1px solid var(--border-strong);
+  border-radius:14px;
+  padding:clamp(24px,4vw,44px);
+  background:var(--bg);
+}
+.sim-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:26px;
+}
+.sim-count{
+  font-family:var(--mono);
+  font-size:13px;
+  letter-spacing:0.04em;
+  color:var(--ink);
+}
+.sim-bars{display:flex; flex-direction:column; gap:12px; margin-bottom:30px;}
+.sim-row{display:grid; grid-template-columns:120px 1fr 40px; align-items:center; gap:14px;}
+.sim-row .label{font-family:var(--mono); font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--grey);}
+.sim-row .track{height:8px; background:rgba(7,16,18,0.08); border-radius:4px; overflow:hidden;}
+.sim-row .fill{height:100%; width:0%; border-radius:4px; transition:width 1.1s cubic-bezier(.2,.8,.2,1);}
+.sim-row .num{font-family:var(--mono); font-size:13px; text-align:right;}
+.sim-row.critical .fill{background:var(--red);}
+.sim-row.relevant .fill{background:var(--burgundy);}
+.sim-row.deferred .fill{background:var(--blue); opacity:0.75;}
+.sim-row.batched .fill{background:var(--amber);}
+.sim-row.suppressed .fill{background:var(--grey);}
+
+.sim-actions{display:flex; gap:14px; flex-wrap:wrap;}
+.sim-quiet{
+  padding-top:10px;
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:19px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.sim-fade{transition:opacity 0.7s ease, max-height 0.7s ease; overflow:hidden;}
+
+/* ============ WORK ============ */
+.project{
+  padding:56px 0;
+}
+.project + .project{border-top:1px solid var(--border);}
+.project-head{
+  display:grid;
+  grid-template-columns:100px 1fr;
+  gap:24px;
+  margin-bottom:30px;
+}
+.project-num{font-family:var(--mono); font-size:14px; color:var(--burgundy); padding-top:6px;}
+.project-title{font-size:clamp(28px,4vw,44px);}
+.project-client{font-family:var(--mono); font-size:12.5px; letter-spacing:0.05em; text-transform:uppercase; color:var(--grey); margin-top:6px;}
+
+.project-body{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(30px,5vw,70px);
+  align-items:start;
+}
+.project-text .field{margin-bottom:20px;}
+.project-text .field-label{font-family:var(--mono); font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--grey); margin-bottom:6px;}
+.project-text .field p{font-size:16px; margin:0; max-width:52ch;}
+.challenge-quote{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:22px;
+  border-left:2px solid var(--burgundy);
+  padding-left:18px;
+  margin:22px 0;
+}
+.project-visual{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:28px;
+  background:var(--bg-raised);
+}
+.deliverables{
+  display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;
+}
+.chip{
+  font-family:var(--mono);
+  font-size:11.5px;
+  letter-spacing:0.02em;
+  border:1px solid var(--border-strong);
+  border-radius:20px;
+  padding:5px 12px;
+  color:#3a3532;
+}
+.metric-line{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.metric-value{font-family:var(--serif); font-size:34px;}
+.metric-label{font-family:var(--mono); font-size:11.5px; letter-spacing:0.05em; text-transform:uppercase; color:var(--grey);}
+
+/* presence-mode levels visual */
+.levels{display:flex; flex-direction:column; gap:10px;}
+.level{display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);}
+.level:last-child{border-bottom:none;}
+.level .lv-num{font-family:var(--mono); font-size:12px; color:var(--grey);}
+.level .lv-text b{display:block; font-family:var(--sans); font-size:13.5px; letter-spacing:0.03em;}
+.level .lv-text span{font-size:13px; color:#57524d;}
+.level.lv1{border-left:3px solid var(--red); padding-left:10px;}
+.level.lv2{border-left:3px solid var(--burgundy); padding-left:10px;}
+.level.lv3{border-left:3px solid var(--blue); padding-left:10px;}
+.level.lv4{border-left:3px solid var(--amber); padding-left:10px;}
+.level.lv5{border-left:3px solid var(--grey); padding-left:10px;}
+
+/* quiet shift day visual */
+.day-track{display:flex; height:54px; border-radius:8px; overflow:hidden; border:1px solid var(--border);}
+.day-block{display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:10.5px; letter-spacing:0.03em; color:var(--bg); text-align:center; padding:2px;}
+.day-legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; font-family:var(--mono); font-size:11.5px; color:var(--grey);}
+.legend-dot{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; vertical-align:middle;}
+
+/* compute worthy lifecycle */
+.lifecycle{display:flex; flex-wrap:wrap; gap:0; align-items:center;}
+.lc-step{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  border:1px solid var(--border-strong);
+  border-radius:20px;
+  padding:8px 14px;
+}
+.lc-arrow{color:var(--grey); padding:0 8px; font-family:var(--mono);}
+.resource-note{
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+  font-size:14.5px;
+  color:#3a3532;
+}
+
+@media (max-width:900px){
+  .project-body{grid-template-columns:1fr;}
+}
+
+/* ============ EXPERIENCE ============ */
+.timeline{
+  display:flex;
+  flex-direction:column;
+}
+.tl-row{
+  display:grid;
+  grid-template-columns:190px 1fr;
+  gap:24px;
+  padding:26px 0;
+  border-bottom:1px solid var(--border);
+}
+.tl-row:first-child{border-top:1px solid var(--border);}
+.tl-dates{font-family:var(--mono); font-size:12.5px; color:var(--grey); letter-spacing:0.02em; padding-top:4px;}
+.tl-main{display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap;}
+.tl-role{font-family:var(--serif); font-size:23px;}
+.tl-org{font-family:var(--mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--burgundy); margin-top:4px;}
+.tl-note{font-size:14.5px; color:#57524d; max-width:48ch; margin-top:8px;}
+.tl-overlap{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--grey);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:3px 10px;
+  height:fit-content;
+  white-space:nowrap;
+}
+
+@media (max-width:700px){
+  .tl-row{grid-template-columns:1fr;}
+  .tl-dates{padding-top:0;}
+}
+
+/* ============ HOW I WORK ============ */
+.steps{
+  display:flex;
+  flex-direction:column;
+}
+.step{
+  display:grid;
+  grid-template-columns:80px 1fr;
+  gap:24px;
+  padding:28px 0;
+  border-bottom:1px solid var(--border);
+}
+.step:first-child{border-top:1px solid var(--border);}
+.step-num{font-family:var(--mono); font-size:14px; color:var(--burgundy); padding-top:6px;}
+.step-title{font-size:clamp(22px,2.6vw,28px); margin-bottom:6px;}
+.step-desc{font-size:15px; color:#3a3532; max-width:56ch; margin:0;}
+.measure-tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+
+@media (max-width:600px){
+  .step{grid-template-columns:1fr;}
+  .step-num{padding-top:0;}
+}
+
+/* ============ FUTURE CLIENT ============ */
+.client-top{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(30px,5vw,70px);
+  margin-bottom:70px;
+}
+.promise{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(24px,3vw,32px);
+  line-height:1.35;
+  margin-top:20px;
+}
+.tension{
+  margin-top:26px;
+  padding:22px;
+  border:1px solid var(--border-strong);
+  border-radius:12px;
+  background:var(--bg-raised);
+  font-size:15px;
+}
+.shift-line{
+  font-family:var(--mono);
+  font-size:13px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:var(--grey);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:16px;
+}
+.shift-line b{color:var(--ink); font-weight:600;}
+
+.cell-title{font-family:var(--mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--grey); margin-bottom:18px;}
+.cell{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+}
+.cell-role{
+  background:var(--bg);
+  padding:22px 18px;
+  font-family:var(--sans);
+  font-size:13.5px;
+  font-weight:600;
+}
+.cell-role.lead{background:var(--ink); color:var(--bg);}
+@media (max-width:900px){.cell{grid-template-columns:1fr 1fr;} .client-top{grid-template-columns:1fr;}}
+@media (max-width:500px){.cell{grid-template-columns:1fr;}}
+
+/* ============ METRICS ============ */
+#metrics{background:var(--bg-raised);}
+.metrics-label{margin-bottom:36px;}
+.metrics-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:36px;
+}
+.stat-value{
+  font-family:var(--serif);
+  font-size:clamp(30px,4vw,46px);
+  color:var(--burgundy);
+}
+.stat-label{
+  font-family:var(--mono);
+  font-size:11.5px;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  color:var(--grey);
+  margin-top:6px;
+}
+@media (max-width:760px){.metrics-grid{grid-template-columns:1fr 1fr;}}
+@media (max-width:480px){.metrics-grid{grid-template-columns:1fr;}}
+
+/* ============ CONTACT ============ */
+#contact{text-align:left;}
+.contact-statement{max-width:16ch; margin-bottom:40px;}
+.contact-meta{
+  display:flex;
+  gap:40px;
+  flex-wrap:wrap;
+  align-items:baseline;
+  margin-bottom:40px;
+}
+.contact-meta .name{font-family:var(--serif); font-size:20px;}
+.contact-meta .role{font-family:var(--mono); font-size:12.5px; color:var(--grey); letter-spacing:0.04em;}
+.email-link{
+  font-family:var(--mono);
+  font-size:16px;
+  text-decoration:none;
+  border-bottom:1px solid var(--ink);
+  padding-bottom:2px;
+}
+
+footer{
+  padding:70px 0 40px;
+  text-align:center;
+}
+.footer-lines{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(18px,2.4vw,24px);
+  line-height:1.5;
+  margin-bottom:40px;
+}
+.footer-final{
+  padding:80px 0 30px;
+}
+.footer-final .name{
+  font-family:var(--serif);
+  font-size:clamp(30px,5vw,52px);
+  margin-bottom:6px;
+}
+.footer-final .role{
+  font-family:var(--mono);
+  font-size:13px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--grey);
+  margin-bottom:36px;
+}
+.footer-final .quote{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(16px,2vw,19px);
+  color:#57524d;
+  max-width:36ch;
+  margin:0 auto;
+}
+.copyright{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--grey);
+  margin-top:60px;
+}
+
+/* body-level quiet state, triggered on scroll into philosophy section */
+body.is-quiet #nav{opacity:0.18;}
+body.is-quiet .meta-label:not(#philosophy .meta-label):not(.simulator .meta-label){opacity:0.15;}
+
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-name">Shameera Shah</div>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <span class="nav-status">2036 / DISENGAGEMENT DESIGNER</span>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section id="hero" class="wrap">
+  <div class="hero-grid">
+    <div>
+      <h1 class="display hero-name">Shameera<br>Shah</h1>
+      <div class="hero-role">Disengagement Designer</div>
+      <p class="hero-statement">Designing strategic engagement between AI-led systems and users.</p>
+      <p class="hero-manifesto">In a world where intelligent systems can always do more, I design the moments when they should stop.</p>
+      <a href="#work" class="btn btn-primary">View project</a>
+    </div>
+    <div class="hero-visual">
+      <svg viewBox="0 0 640 760" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A designer gently drawing a human figure back from a glowing interface panel">
+        <defs>
+          <radialGradient id="glow" cx="50%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#2678E8" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#2678E8" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="dissolve" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#F3A300" stop-opacity="0.92"/>
+            <stop offset="100%" stop-color="#F3A300" stop-opacity="0.08"/>
+          </linearGradient>
+        </defs>
+
+        <rect x="16" y="16" width="608" height="728" rx="16" fill="none" stroke="rgba(7,16,18,0.22)" stroke-width="1"/>
+
+        <!-- floor -->
+        <line x1="46" y1="642" x2="594" y2="642" stroke="rgba(7,16,18,0.18)" stroke-width="1"/>
+        <line x1="70" y1="46" x2="70" y2="642" stroke="rgba(7,16,18,0.1)" stroke-width="1"/>
+
+        <!-- interface panel -->
+        <rect x="300" y="96" width="270" height="546" rx="12" fill="#071012"/>
+        <rect x="300" y="96" width="270" height="546" rx="12" fill="url(#glow)"/>
+        <line x1="326" y1="140" x2="486" y2="140" stroke="#2678E8" stroke-opacity="0.5" stroke-width="1"/>
+        <line x1="326" y1="160" x2="452" y2="160" stroke="#2678E8" stroke-opacity="0.3" stroke-width="1"/>
+        <line x1="326" y1="180" x2="470" y2="180" stroke="#2678E8" stroke-opacity="0.2" stroke-width="1"/>
+
+        <!-- absorbed figure, dissolving toward interface -->
+        <g>
+          <circle cx="352" cy="330" r="24" fill="url(#dissolve)"/>
+          <path d="M320 380 Q352 358 384 380 L390 520 Q352 540 314 520 Z" fill="url(#dissolve)"/>
+        </g>
+
+        <!-- connecting arm -->
+        <path d="M214 402 C 260 396, 288 398, 318 404" stroke="#5C071F" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+        <!-- designer figure -->
+        <g fill="#5C071F">
+          <circle cx="182" cy="356" r="26"/>
+          <path d="M146 410 Q182 386 218 410 L222 560 Q182 582 142 560 Z"/>
+        </g>
+
+        <!-- ground shadow hints -->
+        <ellipse cx="182" cy="644" rx="46" ry="7" fill="rgba(7,16,18,0.1)"/>
+      </svg>
+      <p class="hero-caption">Sometimes the most valuable interaction is the one that never happens.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT / THE ROLE ============ -->
+<section id="about" class="wrap">
+  <div class="eyebrow-num">02 — About the role</div>
+  <div class="role-top" style="margin-top:22px;">
+    <h2 class="h2">What I design</h2>
+    <div>
+      <p class="lede">I design the boundary between human life and intelligent systems.</p>
+      <p>By 2036, AI no longer waits to be asked.</p>
+      <ul class="anticipates-list">
+        <li>It anticipates.</li>
+        <li>It recommends.</li>
+        <li>It monitors.</li>
+        <li>It negotiates.</li>
+        <li>It optimises.</li>
+        <li>It interrupts.</li>
+      </ul>
+      <p>My work is deciding when that intelligence has earned a person's attention, and when it hasn't. Not because AI should become less capable — but because it should become more intentional about when it acts, speaks, recommends, interrupts and disappears.</p>
+    </div>
+  </div>
+
+  <div class="principles">
+    <div class="principle"><h3>Intervene</h3><p>When something genuinely requires human attention.</p></div>
+    <div class="principle"><h3>Defer</h3><p>When something can wait.</p></div>
+    <div class="principle"><h3>Suppress</h3><p>When an interaction creates little value.</p></div>
+    <div class="principle"><h3>Disappear</h3><p>When technology should leave the human experience untouched.</p></div>
+  </div>
+
+  <p style="max-width:44ch;">Every AI interaction has a cost — not only in attention, but in computation, electricity, cooling and water. I weigh three things against each other before anything reaches a person:</p>
+  <div class="cost-line">
+    <span>Human attention</span><span class="plus">+</span>
+    <span>Human autonomy</span><span class="plus">+</span>
+    <span>Computational resources</span>
+  </div>
+
+  <div class="beliefs">
+    <p class="belief">AI should augment human judgement, not replace it.</p>
+    <p class="belief">More capability does not always mean a better experience.</p>
+    <p class="belief">Technology should earn the right to interrupt.</p>
+    <p class="belief">Resource efficiency is part of interaction design.</p>
+  </div>
+</section>
+
+<!-- ============ DESIGN PHILOSOPHY ============ -->
+<section id="philosophy" class="wrap">
+  <div class="eyebrow-num meta-label">04 — Design philosophy</div>
+  <h2 class="h2" style="margin-top:22px; margin-bottom:26px;">The design of nothing</h2>
+  <p class="philosophy-intro">Design has traditionally been rewarded for creating more — more features, more interactions, more engagement, more personalisation. Disengagement design starts from a different question: does this interaction need to exist at all?</p>
+
+  <div class="dont-list">
+    <div>Don't notify.</div>
+    <div>Don't interrupt.</div>
+    <div>Don't optimise.</div>
+    <div>Don't personalise.</div>
+    <div>Don't generate.</div>
+    <div>Don't record.</div>
+    <div>Don't intervene.</div>
+  </div>
+  <p class="nothing-line">Sometimes the designed outcome is nothing.</p>
+
+  <div class="void" aria-hidden="true"></div>
+
+  <div class="simulator" id="simulator">
+    <div class="sim-top">
+      <span class="meta-label">AI interruption simulator</span>
+      <span class="sim-count" id="simCount">47 potential interventions detected</span>
+    </div>
+    <div class="sim-bars">
+      <div class="sim-row critical"><span class="label">Critical</span><div class="track"><div class="fill" data-target="7" data-total="47"></div></div><span class="num" data-count="7">0</span></div>
+      <div class="sim-row relevant"><span class="label">Relevant</span><div class="track"><div class="fill" data-target="11" data-total="47"></div></div><span class="num" data-count="11">0</span></div>
+      <div class="sim-row deferred"><span class="label">Deferred</span><div class="track"><div class="fill" data-target="9" data-total="47"></div></div><span class="num" data-count="9">0</span></div>
+      <div class="sim-row batched"><span class="label">Batched</span><div class="track"><div class="fill" data-target="12" data-total="47"></div></div><span class="num" data-count="12">0</span></div>
+      <div class="sim-row suppressed"><span class="label">Suppressed</span><div class="track"><div class="fill" data-target="8" data-total="47"></div></div><span class="num" data-count="8">0</span></div>
+    </div>
+    <div class="sim-fade" id="simFade">
+      <div class="sim-actions">
+        <button class="btn btn-secondary" id="btnShowAll">Show everything</button>
+        <button class="btn btn-primary" id="btnExperience">Let me experience the world</button>
+      </div>
+    </div>
+    <div class="sim-quiet" id="simQuiet" hidden>
+      <span>The interface has stepped back.</span>
+      <button class="text-btn" id="btnReset">Bring it back</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SELECTED WORK ============ -->
+<section id="work" class="wrap">
+  <div class="eyebrow-num">03 — Selected work</div>
+
+  <div class="project">
+    <div class="project-head">
+      <div class="project-num">01</div>
+      <div>
+        <h3 class="project-title">The presence mode</h3>
+        <div class="project-client">AI wearable / smart glasses company</div>
+      </div>
+    </div>
+    <div class="project-body">
+      <div class="project-text">
+        <div class="field"><div class="field-label">Context</div><p>AI glasses have become the primary way people navigate the physical world — continuously reading surroundings and offering navigation, recommendations, social information and health prompts.</p></div>
+        <div class="field"><div class="field-label">Problem</div><p>The system can detect hundreds of potentially useful things a day. Constant intervention was keeping people from experiencing the physical world directly.</p></div>
+        <div class="challenge-quote">"When should the smartest glasses say nothing?"</div>
+        <div class="field"><div class="field-label">Design</div><p>A layered intervention system that classifies everything the glasses notice, from immediate intervention down to full suppression, plus a dedicated Presence Mode that deliberately minimises recommendations, advertising, social information and behavioural prompts while keeping emergency access intact.</p></div>
+        <div class="field"><div class="field-label">Deliverables</div>
+          <div class="deliverables">
+            <span class="chip">Intervention architecture</span>
+            <span class="chip">Attention hierarchy</span>
+            <span class="chip">Contextual silence protocols</span>
+            <span class="chip">Presence Mode</span>
+            <span class="chip">Sensory load maps</span>
+          </div>
+        </div>
+        <div class="metric-line">
+          <div class="metric-value">+34 min</div>
+          <div class="metric-label">Attention returned to the wearer, per day</div>
+        </div>
+      </div>
+      <div class="project-visual">
+        <div class="levels">
+          <div class="level lv1"><span class="lv-num">01</span><span class="lv-text"><b>Critical</b><span>Immediate intervention.</span></span></div>
+          <div class="level lv2"><span class="lv-num">02</span><span class="lv-text"><b>Relevant</b><span>Subtle contextual cue.</span></span></div>
+          <div class="level lv3"><span class="lv-num">03</span><span class="lv-text"><b>Useful</b><span>Stored for later.</span></span></div>
+          <div class="level lv4"><span class="lv-num">04</span><span class="lv-text"><b>Optional</b><span>Available only if requested.</span></span></div>
+          <div class="level lv5"><span class="lv-num">05</span><span class="lv-text"><b>Unnecessary</b><span>Suppressed completely.</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <div class="project-head">
+      <div class="project-num">02</div>
+      <div>
+        <h3 class="project-title">The quiet shift</h3>
+        <div class="project-client">AI-enabled workplace platform</div>
+      </div>
+    </div>
+    <div class="project-body">
+      <div class="project-text">
+        <div class="field"><div class="field-label">Context</div><p>Workers now run several AI systems at once — productivity, manager, learning, HR, communication and personal assistants, each optimising for its own slice of the day.</p></div>
+        <div class="field"><div class="field-label">Problem</div><p>Continuous optimisation, from every direction at once, had created cognitive overload.</p></div>
+        <div class="challenge-quote">"How can AI increase productivity without colonising the entire working day?"</div>
+        <div class="field"><div class="field-label">Design</div><p>A system of intervention boundaries: no-interruption periods, AI-free meetings, an end-of-work shutdown protocol, notification batching, and clear handoff rules between systems.</p></div>
+        <div class="field"><div class="field-label">Principle</div><p>Optimise the work, not every minute of the worker.</p></div>
+        <div class="metric-line">
+          <div class="metric-value">AI interventions avoided</div>
+          <div class="metric-label">Primary success metric</div>
+        </div>
+      </div>
+      <div class="project-visual">
+        <div class="day-track">
+          <div class="day-block" style="width:20%; background:#8E8A84;">Focus</div>
+          <div class="day-block" style="width:12%; background:#071012;">No-AI</div>
+          <div class="day-block" style="width:26%; background:#5C071F;">Assisted</div>
+          <div class="day-block" style="width:14%; background:#071012;">No-AI</div>
+          <div class="day-block" style="width:18%; background:#8E8A84;">Focus</div>
+          <div class="day-block" style="width:10%; background:#A31318;">Shutdown</div>
+        </div>
+        <div class="day-legend">
+          <span><span class="legend-dot" style="background:#8E8A84;"></span>Unassisted work</span>
+          <span><span class="legend-dot" style="background:#071012;"></span>AI-free period</span>
+          <span><span class="legend-dot" style="background:#5C071F;"></span>AI-assisted work</span>
+          <span><span class="legend-dot" style="background:#A31318;"></span>Shutdown protocol</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="project">
+    <div class="project-head">
+      <div class="project-num">03</div>
+      <div>
+        <h3 class="project-title">Compute worthy</h3>
+        <div class="project-client">AI wearable / personal AI platform</div>
+      </div>
+    </div>
+    <div class="project-body">
+      <div class="project-text">
+        <div class="field"><div class="field-label">Context</div><p>Every recommendation, prediction and interaction requires computation. As AI demand grows, energy, water and compute have become increasingly contested resources.</p></div>
+        <div class="field"><div class="field-label">Problem</div><p>Not every interaction is worth the computational resources required to generate it.</p></div>
+        <div class="challenge-quote">"Should this interaction happen at all?"</div>
+        <div class="field"><div class="field-label">Design</div><p>A compute-to-attention framework that weighs the value of an interaction against the attention it asks for and the cost of generating it, then routes each one: handled locally, deferred, batched, suppressed, or escalated to more powerful intelligence only when the value justifies it.</p></div>
+        <div class="resource-note">In 2036, digital interaction is no longer treated as immaterial. Every exchange runs through a physical lifecycle — and it's worth asking, at the end of it, whether the interaction was worth creating.</div>
+        <div class="lifecycle" style="margin-top:14px;">
+          <span class="lc-step">Sense</span><span class="lc-arrow">→</span>
+          <span class="lc-step">Process</span><span class="lc-arrow">→</span>
+          <span class="lc-step">Generate</span><span class="lc-arrow">→</span>
+          <span class="lc-step">Deliver</span><span class="lc-arrow">→</span>
+          <span class="lc-step">Consume</span><span class="lc-arrow">→</span>
+          <span class="lc-step">Discard</span>
+        </div>
+      </div>
+      <div class="project-visual">
+        <p style="font-family:var(--serif); font-style:italic; font-size:19px; margin:0 0 22px 0;">The most sustainable AI interaction is sometimes the one that never happens.</p>
+        <hr class="rule" style="margin-bottom:18px;">
+        <div class="field-label" style="margin-bottom:10px;">Routing decisions</div>
+        <div class="deliverables">
+          <span class="chip">Local</span>
+          <span class="chip">Defer</span>
+          <span class="chip">Batch</span>
+          <span class="chip">Suppress</span>
+          <span class="chip">Escalate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WORK EXPERIENCE ============ -->
+<section id="experience" class="wrap">
+  <div class="eyebrow-num">05 — Work experience</div>
+  <h2 class="h2" style="margin:22px 0 40px;">A portfolio career</h2>
+
+  <div class="timeline">
+    <div class="tl-row">
+      <div class="tl-dates">Jul 2034 — Jul 2036</div>
+      <div class="tl-main">
+        <div>
+          <div class="tl-role">Disengagement Designer</div>
+          <div class="tl-org">Meta</div>
+          <p class="tl-note">Bringing together systems thinking, AI, human behaviour and sustainability into one discipline.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-dates">Jan 2034 — Jul 2034</div>
+      <div class="tl-main">
+        <div>
+          <div class="tl-role">Career break</div>
+          <div class="tl-org">—</div>
+          <p class="tl-note">A deliberate period of rest, reflection and reskilling.</p>
+        </div>
+        <span class="tl-overlap">Overlaps Conservation role</span>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-dates">Jan 2033 — Jul 2034</div>
+      <div class="tl-main">
+        <div>
+          <div class="tl-role">Conservation Designer</div>
+          <div class="tl-org">OpenAI</div>
+          <p class="tl-note">Understanding ecological systems and resource constraints.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-dates">Jul 2031 — Dec 2032</div>
+      <div class="tl-main">
+        <div>
+          <div class="tl-role">Systems Designer</div>
+          <div class="tl-org">Google</div>
+          <p class="tl-note">Moving from interfaces toward complex, interconnected systems.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-dates">Jan 2031 — Jun 2031</div>
+      <div class="tl-main">
+        <div>
+          <div class="tl-role">Run Club Host</div>
+          <div class="tl-org">—</div>
+          <p class="tl-note">A deliberate human, social experience outside conventional design work.</p>
+        </div>
+        <span class="tl-overlap">Overlaps ElevenLabs role</span>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-dates">Apr 2029 — Dec 2031</div>
+      <div class="tl-main">
+        <div>
+          <div class="tl-role">Conversation Designer</div>
+          <div class="tl-org">ElevenLabs</div>
+          <p class="tl-note">Learning how people actually talk to intelligent systems.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-dates">Jan 2026 — Mar 2029</div>
+      <div class="tl-main">
+        <div>
+          <div class="tl-role">Design Engineer</div>
+          <div class="tl-org">Tata</div>
+          <p class="tl-note">Learning to design within increasingly computational systems.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW I WORK ============ -->
+<section class="wrap">
+  <div class="eyebrow-num">06 — How I work</div>
+  <h2 class="h2" style="margin:22px 0 10px;">Method</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div><div class="step-title">Map</div><p class="step-desc">Map every possible interaction between the person and the system.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div><div class="step-title">Question</div><p class="step-desc">Does the person need this? Does the system need to do this? Does it need to happen now?</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div><div class="step-title">Classify</div><p class="step-desc">Sort each interaction: intervene, defer, batch, suppress, or disappear.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div><div class="step-title">Simulate</div><p class="step-desc">Use AI to generate and stress-test possible intervention strategies at scale.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div><div class="step-title">Test</div><p class="step-desc">Test the behaviour in real physical environments, not simulations alone.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">06</div>
+      <div>
+        <div class="step-title">Measure</div>
+        <p class="step-desc">Track what changed for the person and the system.</p>
+        <div class="measure-tags">
+          <span class="chip">Attention saved</span>
+          <span class="chip">Interruptions avoided</span>
+          <span class="chip">Autonomy preserved</span>
+          <span class="chip">Computation avoided</span>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">07</div>
+      <div><div class="step-title">Set boundaries</div><p class="step-desc">Turn findings into product rules, interaction protocols and system behaviour that hold after I leave the room.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FUTURE CLIENT ============ -->
+<section class="wrap">
+  <div class="eyebrow-num">07 — My client in 2036</div>
+  <div class="client-top" style="margin-top:22px;">
+    <div>
+      <h2 class="h2">A wearable-tech company building AI glasses that mediate the physical world</h2>
+      <p style="margin-top:20px;">The glasses continuously interpret their surroundings, talk to other AI systems, and offer contextual assistance. The company's traditional product teams keep asking how to make them more useful. I ask a different question: does useful mean it deserves someone's attention?</p>
+    </div>
+    <div>
+      <p class="promise">"The AI that knows when to leave you alone."</p>
+      <div class="shift-line"><b>More intelligence</b> <span class="lc-arrow">→</span> <b>More intentional intelligence</b></div>
+      <div class="tension">The glasses can always do something. My job is deciding what deserves attention, what can wait, what should stay invisible, and when a person should get their full autonomy back — while balancing usefulness against attention, autonomy and resource consumption.</div>
+    </div>
+  </div>
+
+  <div class="cell-title">The intervention cell — a small, multidisciplinary team, hybrid by default</div>
+  <div class="cell">
+    <div class="cell-role lead">Disengagement Designer</div>
+    <div class="cell-role">AI / Agent Engineer</div>
+    <div class="cell-role">Behavioural Scientist</div>
+    <div class="cell-role">Cognitive Researcher</div>
+    <div class="cell-role">Environmental / Compute Specialist</div>
+    <div class="cell-role">Privacy / Ethics Specialist</div>
+    <div class="cell-role">Researcher</div>
+    <div class="cell-role">Hardware Designer</div>
+  </div>
+  <p style="margin-top:18px; font-size:14.5px; color:#57524d;">AI simulates thousands of possible intervention scenarios. The team decides the parts that shouldn't be optimised: values, boundaries and acceptable risk.</p>
+</section>
+
+<!-- ============ METRICS ============ -->
+<section id="metrics" class="wrap">
+  <div class="meta-label metrics-label">Illustrative project outcomes</div>
+  <div class="metrics-grid">
+    <div><div class="stat-value">+34 min/day</div><div class="stat-label">Attention returned</div></div>
+    <div><div class="stat-value">−38%</div><div class="stat-label">Unnecessary interventions</div></div>
+    <div><div class="stat-value">2.8M</div><div class="stat-label">AI interactions suppressed</div></div>
+    <div><div class="stat-value">−41%</div><div class="stat-label">Cognitive interruptions</div></div>
+    <div><div class="stat-value">−18%</div><div class="stat-label">Unnecessary computation</div></div>
+    <div><div class="stat-value">+27%</div><div class="stat-label">Human decisions preserved</div></div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact" class="wrap">
+  <div class="eyebrow-num">08 — Contact</div>
+  <h2 class="display contact-statement" style="margin-top:22px;">Need your AI to know when to stop?</h2>
+  <div class="contact-meta">
+    <div class="name">Shameera Shah</div>
+    <div class="role">Disengagement Designer / 2036</div>
+  </div>
+  <a href="mailto:hello@shameerashah.design" class="email-link">hello@shameerashah.design</a>
+</section>
+
+<footer class="wrap">
+  <hr class="rule" style="margin-bottom:60px;">
+  <div class="footer-final">
+    <div class="name">Shameera Shah</div>
+    <div class="role">Disengagement Designer</div>
+    <p class="quote">Sometimes the best interface is the one that knows when to disappear.</p>
+  </div>
+  <div class="copyright">Designing the boundary between intelligence and human life. 2036 © Shameera Shah</div>
+</footer>
+
+<script>
+// nav border on scroll
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 10);
+}, {passive:true});
+
+// simulator: count-up bars on view
+const simulator = document.getElementById('simulator');
+let simAnimated = false;
+function animateSim(){
+  if(simAnimated) return;
+  simAnimated = true;
+  document.querySelectorAll('.sim-row .fill').forEach(fill => {
+    const target = parseFloat(fill.dataset.target);
+    const total = parseFloat(fill.dataset.total);
+    fill.style.width = (target/total*100) + '%';
+  });
+  document.querySelectorAll('.sim-row .num').forEach(numEl => {
+    const target = parseInt(numEl.dataset.count, 10);
+    let current = 0;
+    const step = Math.max(1, Math.round(target/20));
+    const t = setInterval(() => {
+      current = Math.min(target, current+step);
+      numEl.textContent = current;
+      if(current >= target) clearInterval(t);
+    }, 40);
+  });
+}
+if('IntersectionObserver' in window){
+  const simObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) animateSim(); });
+  }, {threshold:0.4});
+  simObserver.observe(simulator);
+} else {
+  animateSim();
+}
+
+// simulator interactions
+const simFade = document.getElementById('simFade');
+const simQuiet = document.getElementById('simQuiet');
+const simBars = document.querySelector('.sim-bars');
+const simCount = document.getElementById('simCount');
+document.getElementById('btnShowAll').addEventListener('click', () => {
+  simBars.style.display = 'flex';
+  simCount.style.display = 'inline';
+  simFade.style.opacity = '1';
+  simFade.style.maxHeight = '200px';
+  simQuiet.hidden = true;
+});
+document.getElementById('btnExperience').addEventListener('click', () => {
+  simFade.style.opacity = '0';
+  simFade.style.maxHeight = '0px';
+  simCount.style.display = 'none';
+  simBars.style.display = 'none';
+  simQuiet.hidden = false;
+});
+document.getElementById('btnReset').addEventListener('click', () => {
+  simBars.style.display = 'flex';
+  simCount.style.display = 'inline';
+  simFade.style.opacity = '1';
+  simFade.style.maxHeight = '200px';
+  simQuiet.hidden = true;
+});
+
+// absence animation: quiet the chrome while the philosophy section is in view
+const philosophy = document.getElementById('philosophy');
+if('IntersectionObserver' in window){
+  const quietObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      document.body.classList.toggle('is-quiet', e.isIntersecting);
+    });
+  }, {threshold:0.5});
+  quietObserver.observe(philosophy);
+}
+</script>
+
+</body>
+</html>
